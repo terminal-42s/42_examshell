@@ -58,8 +58,12 @@ int check_input(char *str)
     {
         if(str[i] == '(')
             par++;
-        if(str[i] == ')')
+        else if(str[i] == ')')
             par--;
+        else if (!isdigit(str[i]) && str[i] != '+' && str[i] != '*' && str[i] != '(' && str[i] != ')')
+            return (unexpected(str[i]), 1);
+        if(isdigit(str[i]) && isdigit(str[i+1]))
+            return(unexpected(str[i+1]), 1);
         if(isdigit(str[i]) && isdigit(str[i+1]))
             return(unexpected(str[i+1]), 1);
         last = str[i];
