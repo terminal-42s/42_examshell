@@ -37,6 +37,8 @@ echo -e "${BLUE}📦 Compiling user solution...${NC}"
 cp main.cpp user_main.cpp
 cp "$USER_HPP" user_bigint.hpp
 cp "$USER_CPP" user_bigint.cpp
+sed 's/#include "bigint.hpp"/#include "user_bigint.hpp"/' user_main.cpp > user_main.tmp.cpp
+mv user_main.tmp.cpp user_main.cpp
 g++ -Wall -Wextra -Werror -std=c++98 -o user_bigint user_main.cpp user_bigint.cpp
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ User compilation failed!${NC}"
