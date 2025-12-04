@@ -19,7 +19,7 @@ fi
 
 # Compile the program
 echo "${BLUE}Compiling tsp program...${RESET}"
-gcc -Wall -Werror -Wextra -lm -o tsp_test $c_files 2>/dev/null
+gcc -Wall -Werror -Wextra -o tsp_test $c_files -lm 2>/dev/null
 if [ $? -ne 0 ]; then
     echo "$(tput setaf 1)$(tput bold)FAIL: Compilation error$(tput sgr 0)"
     exit 1
