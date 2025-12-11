@@ -46,7 +46,7 @@ check_balanced() {
 # Function to count non-space characters
 count_non_space() {
     local str="$1"
-    echo "$str" | tr -d ' ' | wc -c | tr -d ' '
+    echo -n "$str" | tr -d ' ' | wc -c | tr -d ' '
 }
 
 # Test 1: Example from subject - rip '(()'
