@@ -127,6 +127,10 @@ while true; do
             ;;
         exit)
             echo "Exiting..."
+			rendu_path="$base_dir/../../rendu"
+			if [[ -d "$rendu_path" && "$rendu_path" == *"/rendu" ]]; then
+				rm -rf "$rendu_path"
+			fi
             exit 0
             ;;
         *)
