@@ -30,5 +30,5 @@ public:
 private:
   static void destroy_tree(node *);
   static void print_node(node *);
-  static node *copy_node(node *); // void* -> node* yapıldı
+  static tree_bag::node *copy_node(node *); // void* -> node* yapıldı
 };

@@ -3,8 +3,8 @@
 #include "searchable_array_bag.hpp"
 #include "set.hpp"
 
-
 #include <iostream>
+#include <stdlib.h>
 
 int main(int argc, char **argv)
 {
@@ -47,9 +47,11 @@ int main(int argc, char **argv)
 		sa.get_bag().print();
 		st.print();
 		sa.clear();
-		sa.insert((int[]){ 1, 2, 3, 4, }, 4);
+		int values[] = {1, 2, 3, 4};
+		sa.insert(values, 4);
 		std::cout << std::endl;
 	}
-
+	delete a;
+	delete t;
 	return (0);
 }
