@@ -37,6 +37,7 @@ int main(int argc, char **argv)
 
 	set sa(*a);
 	set st(*t);
+  int intArr[] = {1, 2, 3, 4};
 	for (int i = 1; i < argc; i++)
 	{
 		st.insert(atoi(argv[i]));
@@ -47,9 +48,11 @@ int main(int argc, char **argv)
 		sa.get_bag().print();
 		st.print();
 		sa.clear();
-		sa.insert((int[]){ 1, 2, 3, 4, }, 4);
+		sa.insert(intArr, sizeof(intArr) / sizeof(int));
 		std::cout << std::endl;
 	}
-
+  
+  delete a;
+  delete t;
 	return (0);
 }
