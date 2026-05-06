@@ -7,6 +7,16 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Cleanup temporary files
+cleanup() {
+    rm -f ref_vect2 user_vect2 \
+          user_main.cpp user_vect2.hpp user_vect2.cpp \
+          user_main.tmp.cpp user_vect2.tmp.cpp \
+          ref_output.txt user_output.txt
+};
+
+trap cleanup EXIT INT TERM
+
 # Comprehensive Test Script for vect2
 echo -e "${BLUE}🔍 Running COMPREHENSIVE TESTING for vect2${NC}"
 echo "=========================================="
@@ -159,5 +169,3 @@ echo "======================================="
 # Wait for user to press enter before continuing
 read -rp "Press enter to continue..." dummy
 
-# Cleanup temporary files
-rm -f ref_vect2 user_vect2 user_main.cpp user_vect2.hpp user_vect2.cpp ref_output.txt user_output.txt

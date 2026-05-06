@@ -7,6 +7,14 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+
+# Cleanup temporary files
+cleanup() {
+    rm -f ref_bigint user_bigint user_main.cpp user_bigint.hpp user_bigint.cpp ref_output.txt user_output.txt
+};
+
+trap cleanup EXIT INT TERM
+
 # Comprehensive Test Script for bigint
 echo -e "${BLUE}🔍 Running COMPREHENSIVE TESTING for bigint${NC}"
 echo "=========================================="
@@ -54,7 +62,15 @@ echo ""
 echo -e "${BLUE}🚀 Running tests...${NC}"
 ./ref_bigint > ref_output.txt 2>&1
 echo "[DEBUG] Reference output:"; cat ref_output.txt
-./user_bigint > user_output.txt 2>&1
+timeout 2 ./user_bigint > user_output.txt 2>&1
+status=$?
+if [ $status -eq 124 ]; then
+    echo -e "${RED}❌ User program timed out (possible infinite loop)${NC}"
+    exit 1
+elif [ $status -ne 0 ]; then
+    echo -e "${RED}❌ User program crashed (exit code $status)${NC}"
+    exit 1
+fi
 echo "[DEBUG] User output:"; cat user_output.txt
 
 # Compare outputs
@@ -158,6 +174,3 @@ echo "======================================="
 
 # Wait for user to press enter before continuing
 read -rp "Press enter to continue..." dummy
-
-# Cleanup temporary files
-rm -f ref_bigint user_bigint user_main.cpp user_bigint.hpp user_bigint.cpp ref_output.txt user_output.txt

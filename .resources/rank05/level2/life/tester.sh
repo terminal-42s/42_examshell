@@ -7,6 +7,18 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
+# Cleanup
+cleanup() {
+    rm -rf ref_life user_life \
+        ref_*.txt user_*.txt \
+        
+        if [ -n "$TMP_USER" ]; then
+            rm -rf "$TMP_USER"
+        fi
+}
+
+trap cleanup EXIT INT TERM
+
 # User solution path
 USER_DIR="../../../../rendu/life"
 
@@ -16,36 +28,37 @@ if [ ! -d "$USER_DIR" ]; then
     exit 1
 fi
 
-# Check user files
-USER_C_FILES=$(find "$USER_DIR" -name "*.c")
-USER_H_FILES=$(find "$USER_DIR" -name "*.h")
+# Create temporary folder
+TMP_USER=$(mktemp -d)
+cp "$USER_DIR"/*.c "$TMP_USER/" 2>/dev/null
+cp "$USER_DIR"/*.h "$TMP_USER/" 2>/dev/null
+
+USER_C_FILES=$(find "$TMP_USER" -name "*.c")
+USER_H_FILES=$(find "$TMP_USER" -name "*.h")
 
 if [ -z "$USER_C_FILES" ] || [ -z "$USER_H_FILES" ]; then
-    echo -e "${RED}❌ User solution not found: No .c or .h files in $USER_DIR${NC}"
+    echo -e "${RED}❌ User solution not found: No .c or .h files${NC}"
     exit 1
 fi
 
-# Create temporary folder
-TMP_DIR=$(mktemp -d)
-cp "$USER_DIR"/* "$TMP_DIR"/
-cp life.c "$TMP_DIR"/
-cd "$TMP_DIR" || exit 1
-
 # Compile reference
-gcc -Wall -Wextra -Werror -std=c99 -o ref_life life.c >/dev/null 2>&1
+echo -e "${BLUE}📦 Compiling reference solution...${NC}"
+gcc -Wall -Wextra -Werror -std=c99 -o ref_life life.c
+
 if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ Reference compilation failed in TMP_DIR!${NC}"
-    cd - >/dev/null
-    rm -rf "$TMP_DIR"
+    echo -e "${RED}❌ Reference compilation failed!${NC}"
     exit 1
 fi
 
 # Compile user
-gcc -Wall -Wextra -Werror -std=c99 -o user_life *.c >/dev/null 2>&1
+echo -e "${BLUE}📦 Compiling user solution...${NC}"
+gcc -Wall -Wextra -Werror -std=c99 \
+    $USER_C_FILES \
+    -I"$TMP_USER" \
+    -o user_life
+
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ User compilation failed!${NC}"
-    cd - >/dev/null
-    rm -rf "$TMP_DIR"
     exit 1
 fi
 
@@ -60,7 +73,17 @@ run_test() {
     local user_out="user_${test_name}.txt"
 
     echo "$input" | ./ref_life "$rows" "$cols" "$iter" > "$ref_out" 2>&1
-    echo "$input" | ./user_life "$rows" "$cols" "$iter" > "$user_out" 2>&1
+    #Run user test with timeout to prevent infinite loop
+    echo "$input" | timeout 2 ./user_life "$rows" "$cols" "$iter" > "$user_out" 2>&1
+    status=$?
+    
+    if [ $status -eq 124 ]; then
+        echo -e "${RED}❌ User program timed out (possible infinite loop)${NC}"
+        exit 1
+    elif [ $status -ne 0 ]; then
+        echo -e "${RED}❌ User program crashed (exit code $status)${NC}"
+        exit 1
+    fi
 
     if diff -q "$ref_out" "$user_out" >/dev/null; then
         return 0
@@ -126,7 +149,3 @@ else
     [ -n "$has_errors" ] && echo -e "${RED}→ Valgrind errors detected${NC}"
     echo "======================================="
 fi
-
-# Cleanup
-cd - >/dev/null
-rm -rf "$TMP_DIR"
