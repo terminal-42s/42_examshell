@@ -14,7 +14,14 @@ echo ""
 
 # Compile the reference solution
 echo -e "${BLUE}📦 Compiling reference solution...${NC}"
-g++ -Wall -Wextra -Werror -std=c++98 -o ref_polyset main.cpp *.cpp
+g++ -Wall -Wextra -Werror -std=c++98 \
+  main.cpp \
+  array_bag.cpp \
+  tree_bag.cpp \
+  searchable_array_bag.cpp \
+  searchable_tree_bag.cpp \
+  set.cpp \
+  -o ref_polyset
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Reference compilation failed!${NC}"
@@ -26,8 +33,6 @@ echo ""
 
 # Check if user solution exists
 USER_DIR="../../../../rendu/polyset"
-USER_CPP="$USER_DIR/polyset.cpp"
-USER_HPP="$USER_DIR/polyset.hpp"
 if [ ! -d "$USER_DIR" ]; then
     echo -e "${RED}❌ User solution folder not found: $USER_DIR${NC}"
     exit 1
@@ -35,10 +40,25 @@ fi
 
 # Copy and compile user solution
 echo -e "${BLUE}📦 Compiling user solution...${NC}"
-cp main.cpp user_main.cpp
-cp $USER_DIR/*.cpp . 2>/dev/null
-cp $USER_DIR/*.hpp . 2>/dev/null
-g++ -Wall -Wextra -Werror -std=c++98 -o user_polyset user_main.cpp *.cpp
+
+TMP_USER=$(mktemp -d)
+
+cp subject/*.cpp "$TMP_USER/"
+cp subject/*.hpp "$TMP_USER/"
+cp "$USER_DIR"/*.cpp "$TMP_USER/"
+cp "$USER_DIR"/*.hpp "$TMP_USER/"
+cp main.cpp "$TMP_USER/test_main.cpp"\
+
+g++ -Wall -Wextra -Werror -std=c++98 \
+  "$TMP_USER/test_main.cpp" \
+  "$TMP_USER/array_bag.cpp" \
+  "$TMP_USER/tree_bag.cpp" \
+  "$TMP_USER/searchable_array_bag.cpp" \
+  "$TMP_USER/searchable_tree_bag.cpp" \
+  "$TMP_USER/set.cpp" \
+  -I"$TMP_USER" \
+  -o user_polyset
+
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ User compilation failed!${NC}"
     exit 1
@@ -48,10 +68,12 @@ echo -e "${GREEN}✅ User compilation successful!${NC}"
 echo ""
 
 # Run both and capture output
+TEST_ARGS="10 20 30"
+
 echo -e "${BLUE}🚀 Running tests...${NC}"
-./ref_polyset > ref_output.txt 2>&1
+./ref_polyset $TEST_ARGS > ref_output.txt 2>&1
 echo "[DEBUG] Reference output:"; cat ref_output.txt
-./user_polyset > user_output.txt 2>&1
+./user_polyset $TEST_ARGS > user_output.txt 2>&1
 echo "[DEBUG] User output:"; cat user_output.txt
 
 # Compare outputs
@@ -83,7 +105,7 @@ valgrind_output=$(valgrind \
     --track-origins=yes \
     -s \
     --error-exitcode=1 \
-    ./user_polyset 2>&1)
+    ./user_polyset $TEST_ARGS 2>&1)
 
 exit_code=$?
 
@@ -157,4 +179,5 @@ echo "======================================="
 read -rp "Press enter to continue..." dummy
 
 # Cleanup temporary files
-rm -f ref_polyset user_polyset user_main.cpp *.cpp *.hpp ref_output.txt user_output.txt
+rm -f ref_polyset user_polyset ref_output.txt user_output.txt
+rm -rf "$TMP_USER"

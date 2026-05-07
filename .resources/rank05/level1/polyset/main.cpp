@@ -3,8 +3,8 @@
 #include "searchable_array_bag.hpp"
 #include "set.hpp"
 
-
 #include <iostream>
+#include <stdlib.h>
 
 int main(int argc, char **argv)
 {
