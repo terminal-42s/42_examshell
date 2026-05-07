@@ -41,16 +41,9 @@ setup_files() {
         [ ! -f "$base_dir/../../rendu/$chosen/$chosen.c" ] && touch "$base_dir/../../rendu/$chosen/$chosen.c"
         [ ! -f "$base_dir/../../rendu/$chosen/$chosen.h" ] && touch "$base_dir/../../rendu/$chosen/$chosen.h"
     else
-        # Level1 → create .cpp and .hpp
+        # Level1 → create .cpp and .hpp only if missing
         [ ! -f "$base_dir/../../rendu/$chosen/$chosen.cpp" ] && touch "$base_dir/../../rendu/$chosen/$chosen.cpp"
-
-        if [ ! -f "$base_dir/../../rendu/$chosen/$chosen.hpp" ]; then
-            if [ -f "$base_dir/../rank05/$level/$chosen/$chosen.hpp" ]; then
-                cp "$base_dir/../rank05/$level/$chosen/$chosen.hpp" "$base_dir/../../rendu/$chosen/$chosen.hpp"
-            else
-                touch "$base_dir/../../rendu/$chosen/$chosen.hpp"
-            fi
-        fi
+        [ ! -f "$base_dir/../../rendu/$chosen/$chosen.hpp" ] && touch "$base_dir/../../rendu/$chosen/$chosen.hpp"
     fi
 
     # Special case: Polyset for rank05 level1
