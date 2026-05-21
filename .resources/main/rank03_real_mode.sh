@@ -9,6 +9,13 @@ run_level() {
     display_animation
     clear
     until bash rank03_exam_mode.sh rank03 level$level; do
+        if [ $? -eq 255 ]; then
+            rm -rf ../../rendu
+            rm -f /tmp/.current_subject_rank03_level$level;
+
+            exit 0
+        fi
+
         echo "$(tput setaf 1)Test failed. Try again.$(tput sgr0)"
         read -p "Press Enter to retry Level $level..."
         clear

@@ -113,7 +113,7 @@ while true; do
             ;;
         exit)
             echo "Exiting..."
-            exit 0
+            exit 255 
             ;;
         *)
             echo "Please type 'test' to test code, 'next' for next or 'exit' for exit."
