@@ -30,5 +30,5 @@ test_case "Map 1\nStart (7, 4)\nStart (3, 1)\nMap 2\nStart (0, 0)\n"
 # Cleanup
 rm -f ref.out user.out ref.txt user.txt
 echo "$(tput setaf 2)$(tput bold)PASSED 🎉$(tput sgr 0)"
-exit 1
+exit 0
 
