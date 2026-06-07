@@ -113,7 +113,7 @@ while true; do
             echo -e "${RED}Exiting exam mode...${RESET}"
             rm -f "$subject_file"
             cd "$base_dir"
-            exit 0
+            exit 255
             ;;
         *)
             echo -e "${RED}Unknown command. Use 'test', 'next', or 'exit'.${RESET}"
