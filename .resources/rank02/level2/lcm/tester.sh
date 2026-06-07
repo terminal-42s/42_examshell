@@ -92,4 +92,4 @@ file2=../../../../rendu/lcm/lcm.c
 
     rm out1 out2 out1.txt out2.txt 2>/dev/null
     echo "$(tput setaf 2)$(tput bold)PASSED 🎉$(tput sgr 0)"
-    exit 1
+    exit 0
