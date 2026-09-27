@@ -1,5 +1,10 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR" || exit 1
+
 source colors.sh
-mkdir ../../rendu
+mkdir -p ../../rendu
 clear
 bash label.sh
 printf "${CYAN}%s${RESET}\n" "╔═══════════════════════════════════════════════════════════╗"
@@ -18,7 +23,7 @@ printf "${YELLOW}${BOLD}%s${RESET}\n" "8. Update ExamShell"
 printf "${GREEN}%s${RESET}\n"  "◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆"
 printf "${BLUE}%s${RESET}\n" "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓"
 printf "${CYAN}%s${RESET}\n" "╚═══════════════════════════════════════════════════════════╝"
-printf "${GREEN}${BOLD}Enter your choice (1-7): ${RESET}"
+printf "${GREEN}${BOLD}Enter your choice (1-8): ${RESET}"
 read opt
 case $opt in
     1)
@@ -65,7 +70,7 @@ case $opt in
         ;;
     
     *)
-        echo "Invalid choice. Please enter a number from 1 to 7."
+        echo "Invalid choice. Please enter a number from 1 to 8."
         sleep 1
         clear
         bash menu.sh
