@@ -31,6 +31,37 @@ get_subjects() {
     esac
 }
 
+ask_self_assessment() {
+    local is_success=$1
+    echo
+    echo -e "${MAGENTA}${BOLD}🧠 AUTOAVALIAÇÃO REFLEXIVA & MEMÓRIA MUSCULAR${RESET}"
+    echo -e "${CYAN}Como foi sua autonomia nesta tentativa?${RESET}"
+    echo -e "  [1] 🦾 100% Sozinho (Sem consulta)"
+    echo -e "  [2] 🔍 Precisei pesquisar / consultar material"
+    echo -e "  [Pressione Enter para pular]"
+    read -rp "Sua escolha (1/2): " indep_choice
+
+    local independence=""
+    if [ "$indep_choice" = "1" ]; then
+        independence="alone"
+    elif [ "$indep_choice" = "2" ]; then
+        independence="searched"
+    fi
+
+    local stuck_point=""
+    if [ "$is_success" -eq 0 ] || [ "$independence" = "searched" ]; then
+        echo -e "${YELLOW}Qual foi o ponto principal de bloqueio ou dúvida? (Ex: Malloc/Free, Off-by-one, ASCII wrap, Segfault, Lógica do loop)${RESET}"
+        read -rp "Bloqueio [Enter para pular]: " stuck_point
+    fi
+
+    echo -e "${BLUE}Alguma reflexão, anotação ou insight pessoal?${RESET}"
+    read -rp "Notas [Enter para pular]: " user_notes
+
+    SELF_INDEP="$independence"
+    SELF_STUCK="$stuck_point"
+    SELF_NOTES="$user_notes"
+}
+
 pick_new_subject() {
     subjects_list=$(get_subjects)
     IFS=' ' read -r -a qsub <<< "$subjects_list"
@@ -41,6 +72,7 @@ pick_new_subject() {
 }
 
 prepare_subject() {
+    START_TIME=$(date +%s)
     mkdir -p "$base_dir/../../rendu/$chosen"
     touch "$base_dir/../../rendu/$chosen/$chosen.c"
 
@@ -83,6 +115,8 @@ while true; do
                 slept=$((slept+1))
             done
             
+            DURATION=$(( $(date +%s) - START_TIME ))
+
             if kill -0 $pid 2>/dev/null; then
                 echo -e "${RED}${BOLD}TIMEOUT${RESET}"
                 echo "It can be because of infinite loop "
@@ -90,6 +124,13 @@ while true; do
                 pkill -P $pid 2>/dev/null
                 killall -9 out1 out2 2>/dev/null
                 kill -9 $pid 2>/dev/null
+                ask_self_assessment 0
+                python3 "$base_dir/../../db.py" record "$chosen" 0 "$DURATION" \
+                    --code-file "$base_dir/../../rendu/$chosen/$chosen.c" \
+                    --trace-text "TIMEOUT: Infinite loop or process killed after 10s" \
+                    --independence-status "$SELF_INDEP" \
+                    --stuck-point "$SELF_STUCK" \
+                    --user-notes "$SELF_NOTES" >/dev/null 2>&1
                 sleep 1
                 exit 1
             fi
@@ -99,11 +140,24 @@ while true; do
 
             if echo "$output" | grep -q -E "PASSED|SUCCESS"; then
                 echo -e "${GREEN}${BOLD}✔️  Passed!${RESET}"
+                ask_self_assessment 1
+                python3 "$base_dir/../../db.py" record "$chosen" 1 "$DURATION" \
+                    --code-file "$base_dir/../../rendu/$chosen/$chosen.c" \
+                    --independence-status "$SELF_INDEP" \
+                    --stuck-point "$SELF_STUCK" \
+                    --user-notes "$SELF_NOTES" >/dev/null 2>&1
                 rm -f "$subject_file"
                 sleep 1
                 exit 0
             else
                 echo -e "${RED}${BOLD}❌  Failed.${RESET}"
+                ask_self_assessment 0
+                python3 "$base_dir/../../db.py" record "$chosen" 0 "$DURATION" \
+                    --code-file "$base_dir/../../rendu/$chosen/$chosen.c" \
+                    --trace-file tester_output.log \
+                    --independence-status "$SELF_INDEP" \
+                    --stuck-point "$SELF_STUCK" \
+                    --user-notes "$SELF_NOTES" >/dev/null 2>&1
                 sleep 1
                 exit 1
             fi

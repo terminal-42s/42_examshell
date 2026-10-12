@@ -1,0 +1,4801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>42 Examshell — Rank 02 Active Learning & AI Tutor</title>
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-surface: #111827;
+      --bg-surface-elevated: #1f2937;
+      --bg-terminal: #050811;
+      --border-subtle: #1e293b;
+      --border-glow: #22c55e44;
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --accent-green: #10b981;
+      --accent-green-glow: #10b98133;
+      --accent-blue: #38bdf8;
+      --accent-cyan: #06b6d4;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: rgba(17, 24, 39, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+      color: #000;
+      font-weight: 900;
+      font-size: 1.1rem;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-rank {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 0.15rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      color: var(--accent-green);
+      font-weight: 500;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.5; }
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.55rem 1.15rem;
+      border-radius: 9px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.015em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.22);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.76rem;
+      border-radius: 7px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
+      color: #0b1120;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 3px 12px rgba(14, 165, 233, 0.35);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #0ea5e9 100%);
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(14, 165, 233, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-ai {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: #fff;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 3px 12px rgba(168, 85, 247, 0.35);
+    }
+
+    .btn-ai:hover {
+      background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
+      box-shadow: 0 6px 18px rgba(168, 85, 247, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Container Layout */
+    main {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.75rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .kpi-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .kpi-value-row {
+      margin: 0.6rem 0 0.4rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .kpi-value {
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .kpi-subtext {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .progress-bar-bg {
+      background: rgba(255, 255, 255, 0.08);
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Pattern Drill Grid */
+    .pattern-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1rem;
+    }
+
+    .pattern-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pattern-card:hover, .pattern-card.selected {
+      border-color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.05);
+    }
+
+    .pattern-name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .pattern-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .pattern-stat-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.4rem;
+    }
+
+    /* Exercise Explorer Table */
+    .filters-bar {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 0.4rem 0.85rem;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .search-input {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      width: 220px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    thead {
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      margin-right: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .tag-pattern {
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-fail {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--accent-red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-unattempted {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    /* Modal Component */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 2rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-window {
+      background: linear-gradient(180deg, #131926 0%, #0d121c 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      width: 96vw;
+      max-width: 1460px;
+      height: 93vh;
+      max-height: 960px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(6, 182, 212, 0.1);
+    }
+
+    .modal-header {
+      padding: 1.4rem 2.2rem 1.1rem 2.2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .modal-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-split-toggle {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: 9px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-split-toggle:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: rgba(6, 182, 212, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-split-toggle.active {
+      background: rgba(6, 182, 212, 0.18);
+      border-color: #06b6d4;
+      color: #38bdf8;
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.25);
+    }
+
+    .modal-scorecard {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.75rem;
+      padding: 0.9rem 1.25rem;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .modal-scorecard {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .modal-scorecard {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .scorecard-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .scorecard-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .scorecard-val {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Timeline / Past Attempts Selector */
+    .modal-timeline-strip {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 2.2rem;
+      background: linear-gradient(90deg, rgba(10, 15, 29, 0.95) 0%, rgba(17, 24, 39, 0.85) 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .timeline-strip-label {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-shrink: 0;
+    }
+
+    .timeline-chips-scroll {
+      display: flex;
+      gap: 0.65rem;
+      align-items: center;
+      overflow-x: auto;
+      padding: 0.3rem 0.2rem 0.45rem 0.2rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(6, 182, 212, 0.4) rgba(255, 255, 255, 0.04);
+      flex: 1;
+    }
+
+    .timeline-chips-scroll::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .timeline-chips-scroll::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 4px;
+    }
+
+    .timeline-chips-scroll::-webkit-scrollbar-thumb {
+      background: rgba(6, 182, 212, 0.4);
+      border-radius: 4px;
+    }
+
+    .timeline-chips-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(6, 182, 212, 0.7);
+    }
+
+    .attempt-chip {
+      padding: 0.42rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .attempt-chip:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .attempt-chip.chip-success {
+      border-left: 3px solid var(--accent-green);
+    }
+
+    .attempt-chip.chip-fail {
+      border-left: 3px solid var(--accent-red);
+    }
+
+    .attempt-chip.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%);
+      border-color: #06b6d4;
+      color: #f8fafc;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .attempt-chip.chip-success.active {
+      border-left: 3px solid var(--accent-green);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+    }
+
+    .attempt-chip.chip-fail.active {
+      border-left: 3px solid var(--accent-red);
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
+    }
+
+    .attempt-chip-badge {
+      font-size: 0.68rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .attempt-chip-badge.badge-ok {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .attempt-chip-badge.badge-ko {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    /* Navigation Tabs inside Modal with Maximum Breathing Room */
+    .modal-tabs {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.5);
+      padding: 0.8rem 2.2rem;
+      overflow-x: auto;
+    }
+
+    .modal-tab-btn {
+      padding: 0.72rem 1.35rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    .modal-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .modal-tab-btn.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.18) 0%, rgba(59, 130, 246, 0.12) 100%);
+      border-color: rgba(6, 182, 212, 0.45);
+      color: #38bdf8;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.15);
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      line-height: 1;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: rgba(244, 63, 94, 0.4);
+      color: #f43f5e;
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 1.5rem 2.2rem;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-pane {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-pane.active {
+      display: flex;
+    }
+
+    /* Description Tab (Subject & Pseudocode Layout) */
+    .desc-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.5rem;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    @media (max-width: 1024px) {
+      .desc-layout {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+    }
+
+    .desc-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .desc-card-header {
+      padding: 0.9rem 1.35rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .desc-card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .desc-card-body {
+      padding: 1.35rem;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      line-height: 1.65;
+      font-size: 0.9rem;
+    }
+
+    .meta-pills-row {
+      display: flex;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.85rem 1.1rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .meta-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+    }
+
+    .meta-pill-label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .meta-pill-val {
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      background: rgba(6, 182, 212, 0.12);
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .terminal-box {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .terminal-box-header {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.5rem 0.9rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .terminal-code {
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    /* Split Container */
+    .split-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    @media (max-width: 960px) {
+      .split-layout {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+    }
+
+    /* Side-by-Side Panels */
+    .side-by-side {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    @media (max-width: 900px) {
+      .side-by-side {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+    }
+
+    .panel-box {
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-box-header {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-viewer {
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      white-space: pre;
+      overflow: auto;
+      flex: 1;
+      line-height: 1.45;
+    }
+
+    .trace-viewer {
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #f87171;
+      white-space: pre-wrap;
+      overflow: auto;
+      flex: 1;
+      line-height: 1.45;
+    }
+
+    /* AI Tutor Box */
+    .ai-tutor-section {
+      background: rgba(168, 85, 247, 0.05);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 10px;
+      padding: 0.85rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .ai-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ai-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #c084fc;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ai-response-box {
+      background: var(--bg-terminal);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      display: none;
+      color: #e2e8f0;
+      flex: 1;
+      overflow: hidden;
+      flex-direction: column;
+    }
+
+    .ai-response-box.active {
+      display: flex;
+    }
+
+    /* Markdown Rich Styling inside AI Box */
+    .ai-response-box h1, .ai-response-box h2, .ai-response-box h3, .ai-response-box h4 {
+      color: #c084fc;
+      margin-top: 1.1rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .ai-response-box h1:first-child, .ai-response-box h2:first-child, .ai-response-box h3:first-child {
+      margin-top: 0;
+    }
+
+    .ai-response-box p {
+      margin-bottom: 0.85rem;
+    }
+
+    .ai-response-box ul, .ai-response-box ol {
+      margin-left: 1.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .ai-response-box li {
+      margin-bottom: 0.35rem;
+    }
+
+    .ai-response-box hr {
+      border: 0;
+      border-top: 1px solid rgba(168, 85, 247, 0.3);
+      margin: 1.25rem 0;
+    }
+
+    .ai-response-box strong {
+      color: #f1f5f9;
+      font-weight: 700;
+    }
+
+    .ai-response-box code {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .ai-response-box pre {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      overflow-x: auto;
+      margin: 0.85rem 0;
+    }
+
+    .ai-response-box pre code {
+      background: transparent;
+      padding: 0;
+      color: #38bdf8;
+      font-size: 0.84rem;
+      display: block;
+    }
+
+    .ai-response-box blockquote {
+      border-left: 3px solid #c084fc;
+      background: rgba(168, 85, 247, 0.08);
+      padding: 0.6rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin: 0.85rem 0;
+      font-style: italic;
+    }
+
+    /* AI Token Usage Footer Bar */
+    .ai-usage-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      background: rgba(168, 85, 247, 0.08);
+      border-top: 1px solid rgba(168, 85, 247, 0.2);
+      padding: 0.6rem 1rem;
+      border-radius: 0 0 8px 8px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+    }
+
+    .usage-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .usage-val {
+      color: var(--accent-cyan);
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    /* Conversational Chat UI */
+    .ai-chat-thread {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .chat-bubble {
+      display: flex;
+      flex-direction: column;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      position: relative;
+    }
+
+    .chat-bubble-user {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      align-self: flex-end;
+      max-width: 85%;
+    }
+
+    .chat-bubble-assistant {
+      background: var(--bg-terminal);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      align-self: flex-start;
+      max-width: 95%;
+    }
+
+    .chat-bubble-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .chat-bubble-header .author-user {
+      color: var(--accent-cyan);
+    }
+
+    .chat-bubble-header .author-assistant {
+      color: #c084fc;
+    }
+
+    .chat-input-bar {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 0.75rem;
+    }
+
+    .chat-input-field {
+      flex: 1;
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .chat-input-field:focus {
+      border-color: #c084fc;
+    }
+
+    .btn-clear-chat {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-clear-chat:hover {
+      color: var(--accent-red);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top: 3px solid var(--accent-purple);
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Tab Navigation */
+    .tab-nav {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-cyan);
+      background: var(--bg-surface);
+      border-color: var(--border-subtle) var(--border-subtle) var(--bg-surface) var(--border-subtle);
+      box-shadow: 0 -2px 10px rgba(6, 182, 212, 0.15);
+    }
+
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Timeline Filter Bar */
+    .timeline-filter-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .pill-btn {
+      background: var(--bg-surface-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+      padding: 0.35rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .pill-btn:hover {
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .pill-btn.active {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .date-input {
+      background: var(--bg-terminal);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      outline: none;
+    }
+
+    .date-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    /* Timeline Activity Chart & Day Cells */
+    .timeline-chart-container {
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      overflow-x: auto;
+    }
+
+    .timeline-bars-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.85rem;
+      min-height: 180px;
+      padding-top: 2rem;
+      padding-bottom: 0.5rem;
+    }
+
+    .timeline-bar-column {
+      flex: 1;
+      min-width: 46px;
+      max-width: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      padding: 0.4rem;
+      border-radius: 8px;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .timeline-bar-column:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .timeline-bar-column.selected {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+
+    .timeline-bar-stack {
+      width: 100%;
+      height: 120px;
+      display: flex;
+      flex-direction: column-reverse;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-segment-success {
+      background: linear-gradient(180deg, #10b981, #059669);
+      width: 100%;
+      transition: height 0.3s ease;
+    }
+
+    .bar-segment-fail {
+      background: linear-gradient(180deg, #ef4444, #dc2626);
+      width: 100%;
+      transition: height 0.3s ease;
+    }
+
+    .timeline-bar-count {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .timeline-bar-date {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .timeline-legend {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* Day Inspection Details Box */
+    .day-details-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .day-details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 1rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    /* Reports & Autonomy Section Styles */
+    .autonomy-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr 1fr;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .autonomy-grid {
+        grid-template-columns: 1fr;
+      }
+      .modal-feedback-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+      header, .no-print, .header-actions, .live-indicator, .modal-overlay, footer, .tab-nav {
+        display: none !important;
+      }
+      main {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .section-card, .panel-box, .kpi-card {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+      table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+      }
+      th, td {
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+      }
+      .badge-rank, .tag {
+        border: 1px solid #94a3b8 !important;
+        color: #0f172a !important;
+        background: transparent !important;
+      }
+      .tab-content {
+        display: none !important;
+      }
+    }
+
+    /* Custom Queue & AI Coach Styling */
+    .queue-builder-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .queue-builder-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .queue-catalog-list {
+      max-height: 580px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      padding-right: 0.4rem;
+    }
+    .queue-catalog-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 9px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      transition: all 0.18s ease;
+    }
+    .queue-catalog-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(6, 182, 212, 0.35);
+      transform: translateX(2px);
+    }
+    .queue-active-list {
+      min-height: 250px;
+      max-height: 580px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      padding-right: 0.4rem;
+    }
+    .queue-active-item {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: 9px;
+      padding: 0.7rem 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      transition: all 0.18s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    .queue-active-item:hover {
+      border-color: rgba(6, 182, 212, 0.55);
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+    }
+    .queue-item-order {
+      width: 24px;
+      height: 24px;
+      background: rgba(6, 182, 212, 0.2);
+      color: #38bdf8;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+    }
+    .queue-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .queue-control-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.15s ease;
+    }
+    .queue-control-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+    .queue-control-btn.remove:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+    }
+
+    /* Strategy Coach Styling */
+    .strategy-chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      height: 600px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.5rem;
+      overflow: hidden;
+    }
+    .strategy-chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      padding-right: 0.5rem;
+    }
+    .strategy-msg {
+      max-width: 90%;
+      padding: 1.15rem 1.4rem;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+    .strategy-msg.assistant {
+      align-self: flex-start;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      box-shadow: 0 4px 18px rgba(168, 85, 247, 0.1);
+      color: #e2e8f0;
+    }
+    .strategy-msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(59, 130, 246, 0.2) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #f8fafc;
+      font-weight: 500;
+    }
+    .strategy-msg-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .strategy-msg.assistant .strategy-msg-header {
+      color: #c084fc;
+    }
+    .strategy-msg.user .strategy-msg-header {
+      color: #38bdf8;
+    }
+    .strategy-msg h1, .strategy-msg h2, .strategy-msg h3, .strategy-msg h4 {
+      color: #c084fc;
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+    }
+    .strategy-msg h1:first-child, .strategy-msg h2:first-child, .strategy-msg h3:first-child {
+      margin-top: 0;
+    }
+    .strategy-msg table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.85rem 0;
+      font-size: 0.84rem;
+    }
+    .strategy-msg th, .strategy-msg td {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    .strategy-msg th {
+      background: rgba(255, 255, 255, 0.06);
+      color: #38bdf8;
+    }
+    .strategy-msg code {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+    .strategy-input-bar {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 0.5rem 0.75rem;
+    }
+    .strategy-input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">42</div>
+      <div class="brand-title">
+        EXAMSHELL
+        <span class="badge-rank">Rank 02 Drill</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="live-indicator">
+        <div class="live-dot"></div>
+        Auto-Refresh Ativo
+      </div>
+      <button class="btn" onclick="fetchStats()">🔄 Atualizar</button>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Container -->
+  <main>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn active" id="tab-btn-overview" onclick="switchTab('overview')">
+        🧩 Padrões & Catálogo Geral
+      </button>
+      <button class="tab-btn" id="tab-btn-temporal" onclick="switchTab('temporal')">
+        📅 Análise Temporal & Hábitos Diários
+      </button>
+      <button class="tab-btn" id="tab-btn-reports" onclick="switchTab('reports')">
+        📊 Relatórios & Métricas
+      </button>
+      <button class="tab-btn" id="tab-btn-custom-queue" onclick="switchTab('custom-queue')">
+        🎯 Treino Customizado <span id="tab-queue-badge" style="background: rgba(6, 182, 212, 0.25); color: #38bdf8; font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 10px; font-weight: 700; display: none;">0</span>
+      </button>
+      <button class="tab-btn" id="tab-btn-ai-coach" onclick="switchTab('ai-coach')">
+        🧠 IA Coach de Estratégia
+      </button>
+    </div>
+
+    <!-- Tab 1: Visão Geral e Padrões Técnicos -->
+    <div class="tab-content active" id="tab-content-overview">
+      <!-- KPI Row -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">🎯 Exercícios Dominados</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-mastered" style="color: var(--accent-green);">0</span>
+            <span class="kpi-subtext">/ 55 (<span id="kpi-percentage">0.0%</span>)</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="kpi-progress-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">⚡ Taxa Geral de Acerto</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-accuracy" style="color: var(--accent-cyan);">0.0%</span>
+          </div>
+          <div class="kpi-subtext"><span id="kpi-attempts-total">0</span> submissões avaliadas</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">⏱️ Tempo Médio por Questão</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-avg-time" style="color: var(--accent-blue);">--:--</span>
+          </div>
+          <div class="kpi-subtext">Resoluções contabilizadas</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">⚠️ Padrão Crítico / Atenção</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-vulnerable-pattern" style="font-size: 1.3rem; color: var(--accent-amber);">Nenhum</span>
+          </div>
+          <div class="kpi-subtext" id="kpi-vulnerable-desc">Maior taxa de falhas acumuladas</div>
+        </div>
+      </section>
+
+      <!-- 13 Technical Patterns Matrix -->
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">
+            🧠 Matriz dos 13 Padrões Técnicos (Rank 02)
+          </div>
+          <div class="kpi-subtext">Clique em um padrão para filtrar o catálogo abaixo</div>
+        </div>
+        <div class="pattern-grid" id="patterns-container">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- Exercise Explorer -->
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">
+            📋 Catálogo dos 55 Exercícios do Rank 02
+          </div>
+          <div class="filters-bar" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: nowrap;">
+              <button class="filter-btn active" onclick="setFilterLevel('all')">Todos</button>
+              <button class="filter-btn" onclick="setFilterLevel(0)">Level 0</button>
+              <button class="filter-btn" onclick="setFilterLevel(1)">Level 1</button>
+              <button class="filter-btn" onclick="setFilterLevel(2)">Level 2</button>
+              <button class="filter-btn" onclick="setFilterLevel(3)">Level 3</button>
+            </div>
+            <input type="text" id="search-input" class="search-input" placeholder="Buscar exercício..." oninput="renderExercisesTable()" style="min-width: 220px;">
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Exercício & Status</th>
+                <th>Nível</th>
+                <th>Padrões Técnicos</th>
+                <th>Tentativas</th>
+                <th>Taxa Acerto</th>
+                <th>Tempo Médio</th>
+                <th>Autonomia</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="exercises-table-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Recent Attempts History -->
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">
+            📜 Histórico Recente de Submissões
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Exercício</th>
+                <th>Timestamp</th>
+                <th>Duração</th>
+                <th>Resultado</th>
+                <th>Diagnóstico / Erro</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab 2: Análise Temporal & Hábitos Diários -->
+    <div class="tab-content" id="tab-content-temporal">
+      
+      <!-- Date Range & Preset Filter Bar -->
+      <div class="timeline-filter-card">
+        <div class="filter-group">
+          <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Período Rápido:</span>
+          <button class="pill-btn" onclick="applyPresetPeriod('today')">Hoje</button>
+          <button class="pill-btn" onclick="applyPresetPeriod('7d')">Últimos 7 dias</button>
+          <button class="pill-btn" onclick="applyPresetPeriod('30d')">Últimos 30 dias</button>
+          <button class="pill-btn active" id="pill-all" onclick="applyPresetPeriod('all')">Todo o Período</button>
+        </div>
+
+        <div class="filter-group">
+          <label style="font-size: 0.82rem; color: var(--text-muted);">De:</label>
+          <input type="date" id="timeline-start-date" class="date-input" onchange="onCustomDateChange()">
+          <label style="font-size: 0.82rem; color: var(--text-muted);">Até:</label>
+          <input type="date" id="timeline-end-date" class="date-input" onchange="onCustomDateChange()">
+          <button class="btn btn-primary" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;" onclick="fetchTimeline()">Filtrar</button>
+        </div>
+      </div>
+
+      <!-- Filtered Period KPIs -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">📅 Dias com Atividade</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="timeline-kpi-active-days" style="color: var(--accent-cyan);">0</span>
+            <span class="kpi-subtext">dias com treino</span>
+          </div>
+          <div class="kpi-subtext">No período selecionado</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">⚡ Submissões no Período</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="timeline-kpi-total-attempts" style="color: var(--accent-blue);">0</span>
+            <span class="kpi-subtext">(<span id="timeline-kpi-success-count" style="color: var(--accent-green);">0</span> <span style="color: var(--accent-green);">aprovadas</span>)</span>
+          </div>
+          <div class="kpi-subtext"><span id="timeline-kpi-fail-count" style="color: var(--accent-red);">0</span> falhas registradas</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">🎯 Assertividade do Período</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="timeline-kpi-accuracy" style="color: var(--accent-green);">0.0%</span>
+          </div>
+          <div class="kpi-subtext">Taxa de sucesso nas resoluções</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">⏱️ Tempo Médio no Período</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="timeline-kpi-avg-time" style="color: var(--accent-amber);">--:--</span>
+          </div>
+          <div class="kpi-subtext">Média por exercício testado</div>
+        </div>
+      </section>
+
+      <!-- Activity Timeline Chart -->
+      <section class="section-card">
+        <div class="section-header">
+          <div>
+            <div class="section-title">📊 Frequência Diária & Volume de Submissões</div>
+            <div class="kpi-subtext">Clique em qualquer barra diária para inspecionar os detalhes e submissões daquele dia</div>
+          </div>
+          <div class="timeline-legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background: #10b981;"></div>
+              <span>Aprovadas</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background: #ef4444;"></div>
+              <span>Falhas</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-chart-container">
+          <div class="timeline-bars-row" id="timeline-bars-container">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Selected Day Inspection Panel -->
+      <section class="day-details-panel" id="day-details-panel">
+        <div class="day-details-header">
+          <div>
+            <span style="font-size: 1.15rem; font-weight: 700; color: var(--accent-cyan);" id="selected-day-label">Selecione um dia acima</span>
+            <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.75rem;" id="selected-day-stats-summary"></span>
+          </div>
+          <div id="selected-day-patterns-chips" style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <!-- Pattern chips rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Horário</th>
+                <th>Exercício</th>
+                <th>Nível</th>
+                <th>Padrões Técnicos</th>
+                <th>Duração</th>
+                <th>Resultado</th>
+                <th>Diagnóstico / Erro</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="day-attempts-table-body">
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                  Clique em um dia no gráfico acima para visualizar os exercícios resolvidos e submissões daquela data.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Tab 3: Relatórios Analíticos & Métricas Multidimensionais -->
+    <div class="tab-content" id="tab-content-reports">
+      <!-- Filter Bar for Reports -->
+      <section class="section-card no-print" style="margin-bottom: 1.5rem;">
+        <div class="section-header" style="flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div class="section-title">🔍 Filtros Analíticos Multidimensionais</div>
+            <div class="kpi-subtext">Refine os relatórios por período, nível, padrão técnico ou exercício específico</div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-primary" onclick="fetchReportsAnalytics()">🔎 Atualizar Relatórios</button>
+            <button class="btn" onclick="resetReportFilters()">Limpar Filtros</button>
+            <button class="btn" onclick="window.print()" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">🖨️ Exportar / Imprimir</button>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <div>
+            <label class="kpi-subtext" style="display: block; margin-bottom: 0.35rem;">Data Inicial:</label>
+            <input type="date" id="report-filter-start" class="date-input" style="width: 100%;" onchange="fetchReportsAnalytics()">
+          </div>
+          <div>
+            <label class="kpi-subtext" style="display: block; margin-bottom: 0.35rem;">Data Final:</label>
+            <input type="date" id="report-filter-end" class="date-input" style="width: 100%;" onchange="fetchReportsAnalytics()">
+          </div>
+          <div>
+            <label class="kpi-subtext" style="display: block; margin-bottom: 0.35rem;">Nível:</label>
+            <select id="report-filter-level" class="date-input" style="width: 100%;" onchange="fetchReportsAnalytics()">
+              <option value="">Todos os Níveis (0 a 3)</option>
+              <option value="0">Level 0</option>
+              <option value="1">Level 1</option>
+              <option value="2">Level 2</option>
+              <option value="3">Level 3</option>
+            </select>
+          </div>
+          <div>
+            <label class="kpi-subtext" style="display: block; margin-bottom: 0.35rem;">Padrão Técnico:</label>
+            <select id="report-filter-pattern" class="date-input" style="width: 100%;" onchange="fetchReportsAnalytics()">
+              <option value="">Todos os Padrões</option>
+              <!-- Filled dynamically with 13 patterns -->
+            </select>
+          </div>
+          <div>
+            <label class="kpi-subtext" style="display: block; margin-bottom: 0.35rem;">Exercício:</label>
+            <input type="text" id="report-filter-exercise" class="date-input" placeholder="Ex: ft_split" style="width: 100%;" oninput="fetchReportsAnalytics()">
+          </div>
+        </div>
+      </section>
+
+      <!-- 1. Card de Autonomia & Memória Muscular -->
+      <section class="section-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+          <div class="section-title">🧠 Autonomia & Memória Muscular</div>
+          <div class="kpi-subtext">Taxa de resolução independente vs consultas/pesquisas</div>
+        </div>
+        <div class="autonomy-grid" style="margin-top: 1rem;">
+          <!-- Donut Chart -->
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+            <div id="autonomy-donut-chart" style="width: 150px; height: 150px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--accent-green) 0% 0%, var(--accent-amber) 0% 0%, rgba(255,255,255,0.08) 0% 100%);">
+              <div style="width: 100px; height: 100px; background: var(--bg-surface); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <span id="donut-pct-alone" style="font-size: 1.35rem; font-weight: 700; color: var(--accent-green);">0%</span>
+                <span style="font-size: 0.7rem; color: var(--text-muted);">Sozinho</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.8rem; margin-top: 1rem; font-size: 0.78rem;">
+              <span style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="width: 10px; height: 10px; background: var(--accent-green); border-radius: 2px;"></span> Sozinho
+              </span>
+              <span style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="width: 10px; height: 10px; background: var(--accent-amber); border-radius: 2px;"></span> Pesquisou
+              </span>
+              <span style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="width: 10px; height: 10px; background: rgba(255,255,255,0.2); border-radius: 2px;"></span> N/A
+              </span>
+            </div>
+          </div>
+
+          <!-- Autonomy Metric Counters -->
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div class="kpi-card" style="padding: 1rem;">
+              <div class="kpi-label">🦾 Feito 100% Sozinho</div>
+              <div class="kpi-value-row">
+                <span class="kpi-value" id="autonomy-count-alone" style="color: var(--accent-green); font-size: 1.5rem;">0</span>
+                <span class="kpi-subtext">(<span id="autonomy-pct-alone-detail">0.0%</span>)</span>
+              </div>
+            </div>
+            <div class="kpi-card" style="padding: 1rem;">
+              <div class="kpi-label">🔍 Precisou de Pesquisa / Consulta</div>
+              <div class="kpi-value-row">
+                <span class="kpi-value" id="autonomy-count-searched" style="color: var(--accent-amber); font-size: 1.5rem;">0</span>
+                <span class="kpi-subtext">(<span id="autonomy-pct-searched-detail">0.0%</span>)</span>
+              </div>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+              Total com autoavaliação: <strong id="autonomy-total-count" style="color: var(--text-main);">0</strong> / <span id="autonomy-total-submissions">0</span> submissões.
+            </div>
+          </div>
+
+          <!-- Top 5 Pontos de Bloqueio -->
+          <div style="background: var(--bg-terminal); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 1.25rem;">
+            <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--accent-amber); display: flex; align-items: center; gap: 0.4rem;">
+              🚧 Top 5 Pontos de Bloqueio Recorrentes
+            </div>
+            <div id="top-stuck-points-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.82rem;">
+              <div style="color: var(--text-muted); font-style: italic;">Nenhum bloqueio registrado ainda.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Raio-X por Nível e Padrão Técnico -->
+      <section class="section-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+          <div class="section-title">📊 Raio-X de Domínio por Nível (0 a 3)</div>
+          <div class="kpi-subtext">Taxa de autonomia, assertividade e tempo médio por nível</div>
+        </div>
+        <div class="table-container" style="margin-top: 1rem;">
+          <table>
+            <thead>
+              <tr>
+                <th>Nível</th>
+                <th>Exercícios no Nível</th>
+                <th>Dominados (>=1 OK)</th>
+                <th>Tentativas</th>
+                <th>Taxa de Acerto</th>
+                <th>Autonomia (% Sozinho)</th>
+                <th>Tempo Médio</th>
+              </tr>
+            </thead>
+            <tbody id="reports-level-table-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--accent-cyan);">
+            🧠 Desempenho nos 13 Padrões Técnicos (Assertividade vs Autonomia)
+          </div>
+          <div id="reports-patterns-bars-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Tabela Analítica Completa por Exercício (55 Questões) -->
+      <section class="section-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+          <div class="section-title">📋 Análise Detalhada por Exercício (Rank 02)</div>
+          <div class="kpi-subtext">Histórico agregado, taxas de autonomia, melhor tempo e último ponto de bloqueio</div>
+        </div>
+        <div class="table-container" style="margin-top: 1rem; max-height: 500px; overflow-y: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Exercício</th>
+                <th>Nível</th>
+                <th>Padrões Técnicos</th>
+                <th>Tentativas</th>
+                <th>Assertividade</th>
+                <th>Autonomia</th>
+                <th>Melhor Tempo</th>
+                <th>Tempo Médio</th>
+                <th>Último Bloqueio / Falha</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="reports-exercises-table-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4. Relatório Temporal Consolidado -->
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">📅 Relatório de Produtividade & Hábitos por Dia</div>
+          <div class="kpi-subtext">Volume de treino, índice de autonomia e foco em padrões a cada data</div>
+        </div>
+        <div class="table-container" style="margin-top: 1rem;">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Submissões</th>
+                <th>Aprovadas</th>
+                <th>Falhas</th>
+                <th>Assertividade</th>
+                <th>Autonomia (% Sozinho)</th>
+                <th>Tempo Médio</th>
+                <th>Exercícios Praticados</th>
+              </tr>
+            </thead>
+            <tbody id="reports-daily-table-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+    </div>
+
+    <!-- Tab 4: Treino Customizado / Fila Configurável -->
+    <div class="tab-content" id="tab-content-custom-queue">
+      <!-- Header do Construtor com Ações Principais -->
+      <section class="section-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header" style="flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+              🎯 Construtor de Fila Personalizada (Custom Drill Queue)
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">
+              Monte sequências sob medida entre os 55 exercícios do Rank 02 para praticar com autonomia total.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="saveCustomQueuePrompt()">
+              💾 Salvar Fila no Banco
+            </button>
+            <button class="btn" onclick="exportCustomQueueFile()">
+              📥 Exportar JSON
+            </button>
+            <button class="btn" onclick="showSavedQueuesModal()">
+              📂 Filas Salvas (<span id="saved-queues-count">0</span>)
+            </button>
+            <button class="btn" onclick="clearActiveQueue()" style="color: var(--accent-red);">
+              🧹 Limpar Fila
+            </button>
+          </div>
+        </div>
+
+        <!-- Banner com comando para execução no terminal CLI -->
+        <div style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 9px; padding: 0.85rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem;">
+            <span>💻 <strong>Executar no Terminal:</strong></span>
+            <code style="background: rgba(0,0,0,0.4); padding: 0.2rem 0.6rem; border-radius: 4px; color: var(--accent-cyan); font-family: var(--font-mono);">bash exam.sh --custom</code>
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-muted);">
+            Itens na Fila Ativa: <strong id="queue-counter" style="color: var(--accent-green); font-size: 1.1rem; font-family: var(--font-mono);">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grade de Duas Colunas: Catálogo à Esquerda e Fila Ativa à Direita -->
+      <div class="queue-builder-grid">
+        <!-- Coluna Esquerda: Catálogo Filtrável dos 55 Exercícios -->
+        <div class="section-card">
+          <div class="section-header" style="margin-bottom: 0.75rem;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700;">
+                📚 Banco de Exercícios (Rank 02)
+              </h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Clique em <strong>+ Adicionar</strong> para incluir na sua sequência</span>
+            </div>
+          </div>
+
+          <!-- Barra de Filtros do Catálogo com grupo não quebrável -->
+          <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
+            <div style="display: inline-flex; align-items: center; gap: 0.3rem; flex-wrap: nowrap;">
+              <button class="filter-btn active" id="queue-filter-lvl-all" onclick="setQueueLevelFilter('all')">Todos</button>
+              <button class="filter-btn" id="queue-filter-lvl-0" onclick="setQueueLevelFilter(0)">L0</button>
+              <button class="filter-btn" id="queue-filter-lvl-1" onclick="setQueueLevelFilter(1)">L1</button>
+              <button class="filter-btn" id="queue-filter-lvl-2" onclick="setQueueLevelFilter(2)">L2</button>
+              <button class="filter-btn" id="queue-filter-lvl-3" onclick="setQueueLevelFilter(3)">L3</button>
+            </div>
+            <input type="text" id="queue-search-input" class="search-input" placeholder="Buscar exercício ou padrão..." oninput="renderQueueCatalog()" style="min-width: 190px; flex: 1;">
+          </div>
+
+          <!-- Lista do Catálogo -->
+          <div class="queue-catalog-list" id="queue-catalog-container">
+            <!-- Renderizado dinamicamente -->
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Fila Ativa Ordenável -->
+        <div class="section-card">
+          <div class="section-header" style="margin-bottom: 0.75rem;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                📋 Fila Ativa Ordenável
+              </h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Arraste ou use ▲ ▼ para organizar a ordem de treino</span>
+            </div>
+            <span class="badge-rank" id="queue-length-badge">0 itens</span>
+          </div>
+
+          <div class="queue-active-list" id="queue-active-container">
+            <!-- Renderizado dinamicamente -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 5: IA Coach de Estratégia de Estudos (Painel Sintético & Chat com Memória Persistente) -->
+    <div class="tab-content" id="tab-content-ai-coach">
+      <!-- Header do Coach e Ação de Chat -->
+      <section class="section-card" style="margin-bottom: 1.5rem;">
+        <div class="section-header" style="flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+              🧠 Coach de Estratégia da Escola 42 (Rank 02)
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">
+              Raio-X analítico consolidado do seu desempenho para a prova de 3 horas.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btn-open-coach-chat" onclick="openCoachChatModal()" style="font-weight: 700; font-size: 0.9rem; padding: 0.6rem 1.3rem;">
+              💬 Abrir Chat com Tutor IA (Memória Persistente)
+            </button>
+            <button class="btn" onclick="clearAIStrategyHistory()" style="color: var(--text-muted);">
+              🧹 Limpar Memória
+            </button>
+          </div>
+        </div>
+
+        <!-- Cards Rápidos de Prontidão -->
+        <div class="kpi-grid" style="margin-top: 1.25rem;">
+          <div class="kpi-card" style="padding: 1.1rem;">
+            <div class="kpi-label">🌟 Dominados (100% Autônomos)</div>
+            <div class="kpi-value-row">
+              <span class="kpi-value" id="coach-kpi-mastered" style="font-size: 1.7rem; color: var(--accent-green);">0</span>
+              <span class="kpi-subtext">/ 55</span>
+            </div>
+            <div class="kpi-subtext" style="font-size: 0.75rem;">Aprovado sozinho e última tentativa OK</div>
+          </div>
+          <div class="kpi-card" style="padding: 1.1rem;">
+            <div class="kpi-label">🟡 Em Treinamento Ativo</div>
+            <div class="kpi-value-row">
+              <span class="kpi-value" id="coach-kpi-training" style="font-size: 1.7rem; color: var(--accent-amber);">0</span>
+            </div>
+            <div class="kpi-subtext" style="font-size: 0.75rem;">Exercícios que precisaram de consulta</div>
+          </div>
+          <div class="kpi-card" style="padding: 1.1rem;">
+            <div class="kpi-label">⚠️ Padrões Críticos de Risco</div>
+            <div class="kpi-value-row">
+              <span class="kpi-value" id="coach-kpi-critical" style="font-size: 1.7rem; color: var(--accent-red);">0</span>
+            </div>
+            <div class="kpi-subtext" style="font-size: 0.75rem;">Autonomia &lt; 70% ou Acerto &lt; 75%</div>
+          </div>
+          <div class="kpi-card" style="padding: 1.1rem;">
+            <div class="kpi-label">🧗 Top Gargalo Registrado</div>
+            <div class="kpi-value-row">
+              <span class="kpi-value" id="coach-kpi-stuck" style="font-size: 1.2rem; color: var(--accent-cyan); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</span>
+            </div>
+            <div class="kpi-subtext" style="font-size: 0.75rem;">Principal ponto de bloqueio relatado</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Painel Resumido de Diagnóstico de Desempenho -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+        <!-- Card Esquerda: Recomendações Táticas Resumidas -->
+        <div class="section-card">
+          <div class="section-header" style="margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 0.45rem;">
+              🎯 Diagnóstico e Recomendações Estratégicas
+            </h3>
+          </div>
+          <div id="coach-summary-recommendations" style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.88rem; line-height: 1.55; color: #cbd5e1;">
+            <div style="background: rgba(6, 182, 212, 0.05); border-left: 3px solid var(--accent-cyan); padding: 0.85rem 1rem; border-radius: 6px;">
+              <strong style="color: #38bdf8;">Visão Geral:</strong> Carregando análise de prontidão para a prova...
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Direita: Distribuição por Nível e Memória Recente -->
+        <div class="section-card">
+          <div class="section-header" style="margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: #c084fc; display: flex; align-items: center; gap: 0.45rem;">
+              📊 Roteiro Tático por Nível (0 a 3)
+            </h3>
+          </div>
+          <div id="coach-level-roadmap" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- Renderizado dinamicamente -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modern Responsive Exercise Details Modal with Scorecard, Timeline & Split View -->
+  <div class="modal-overlay" id="attempt-modal">
+    <div class="modal-window">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="modal-header-top">
+          <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+            <span style="font-weight: 800; font-size: 1.25rem; font-family: var(--font-mono); color: var(--accent-cyan);" id="modal-exercise-title">Exercício</span>
+            <span class="badge-rank" id="modal-exercise-level">Level 0</span>
+            <div id="modal-patterns-badges" style="display: flex; gap: 0.35rem; flex-wrap: wrap;"></div>
+          </div>
+          <div class="modal-header-actions">
+            <button class="btn-split-toggle" id="btn-toggle-split" onclick="toggleModalSplitView()" title="Dividir tela: Código à esquerda e Chat à direita">
+              🖥️ <span id="split-toggle-label">Modo Dividido (Código + Chat)</span>
+            </button>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+          </div>
+        </div>
+
+        <!-- Scorecard da Situação Atual do Exercício -->
+        <div class="modal-scorecard">
+          <div class="scorecard-item">
+            <span class="scorecard-label">Situação Atual</span>
+            <span class="scorecard-val" id="modal-scorecard-status">
+              <span class="badge-rank" style="background: rgba(255,255,255,0.1); color: var(--text-muted);">Carregando...</span>
+            </span>
+          </div>
+          <div class="scorecard-item">
+            <span class="scorecard-label">Autonomia</span>
+            <span class="scorecard-val" id="modal-scorecard-autonomy">--</span>
+          </div>
+          <div class="scorecard-item">
+            <span class="scorecard-label">Tentativas</span>
+            <span class="scorecard-val" id="modal-scorecard-attempts">0 (0% acerto)</span>
+          </div>
+          <div class="scorecard-item">
+            <span class="scorecard-label">Melhor Tempo</span>
+            <span class="scorecard-val" style="color: var(--accent-green);" id="modal-scorecard-best">--:--</span>
+          </div>
+          <div class="scorecard-item">
+            <span class="scorecard-label">Tempo Médio</span>
+            <span class="scorecard-val" id="modal-scorecard-avg">--:--</span>
+          </div>
+          <div class="scorecard-item">
+            <span class="scorecard-label">Última Execução</span>
+            <span class="scorecard-val" style="font-size: 0.8rem;" id="modal-scorecard-last">Nunca</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline Strip de Tentativas Antigas -->
+      <div class="modal-timeline-strip" id="modal-timeline-strip">
+        <span class="timeline-strip-label">🕒 Tentativas:</span>
+        <div id="modal-attempts-chips" class="timeline-chips-scroll">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Nenhuma tentativa registrada.</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="modal-tabs" id="modal-tabs-bar">
+        <button class="modal-tab-btn active" id="tab-btn-desc" data-tab="pane-desc" onclick="switchModalTab('pane-desc')">
+          📋 Enunciado & Guia
+        </button>
+        <button class="modal-tab-btn" id="tab-btn-code" data-tab="pane-code" onclick="switchModalTab('pane-code')">
+          💻 Código & Trace
+        </button>
+        <button class="modal-tab-btn" id="tab-btn-ai" data-tab="pane-ai" onclick="switchModalTab('pane-ai')">
+          🤖 Tutor IA & Chat
+        </button>
+        <button class="modal-tab-btn" id="tab-btn-history" data-tab="pane-history" onclick="switchModalTab('pane-history')">
+          📜 Histórico (<span id="modal-tab-history-count">0</span>)
+        </button>
+        <button class="modal-tab-btn" id="tab-btn-feedback" data-tab="pane-feedback" onclick="switchModalTab('pane-feedback')">
+          🧠 Autoavaliação & Reflexão
+        </button>
+      </div>
+
+      <!-- Modal Body com Abas / Split View -->
+      <div class="modal-body" id="modal-main-body">
+
+        <!-- TAB 0: Enunciado Oficial & Guia -->
+        <div class="modal-pane active" id="pane-desc">
+          <div class="desc-layout">
+            <!-- Coluna Esquerda: Enunciado Oficial 42 (Subject) -->
+            <div class="desc-card">
+              <div class="desc-card-header">
+                <div class="desc-card-title">
+                  <span>📄 Enunciado Oficial da 42 (Subject)</span>
+                </div>
+                <button class="btn btn-sm" id="btn-copy-subject" onclick="copySubjectText()">
+                  📋 Copiar Enunciado
+                </button>
+              </div>
+              <div class="desc-card-body">
+                <!-- Meta tags / requisitos -->
+                <div class="meta-pills-row">
+                  <div class="meta-pill">
+                    <span class="meta-pill-label">Atribuição:</span>
+                    <span class="meta-pill-val" id="desc-assignment-name">--</span>
+                  </div>
+                  <div class="meta-pill">
+                    <span class="meta-pill-label">Arquivo Esperado:</span>
+                    <span class="meta-pill-val" id="desc-expected-files" style="color: #4ade80; background: rgba(74, 222, 128, 0.1);">--</span>
+                  </div>
+                  <div class="meta-pill">
+                    <span class="meta-pill-label">Funções Permitidas:</span>
+                    <span class="meta-pill-val" id="desc-allowed-functions" style="color: #c084fc; background: rgba(192, 132, 252, 0.1);">--</span>
+                  </div>
+                </div>
+
+                <!-- Descrição Textual -->
+                <div>
+                  <h4 style="margin: 0 0 0.5rem 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+                    Descrição da Tarefa:
+                  </h4>
+                  <div id="desc-body-text" style="white-space: pre-wrap; font-family: var(--font-sans); color: #e2e8f0; line-height: 1.6; font-size: 0.92rem; background: rgba(255,255,255,0.02); padding: 1.1rem 1.35rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    Carregando subject...
+                  </div>
+                </div>
+
+                <!-- Exemplos de Execução -->
+                <div id="desc-examples-container" style="display: none;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+                      Exemplos de Terminal & Moulinette:
+                    </h4>
+                  </div>
+                  <div class="terminal-box">
+                    <div class="terminal-box-header">
+                      <div class="terminal-dots">
+                        <div class="terminal-dot" style="background: #ef4444;"></div>
+                        <div class="terminal-dot" style="background: #eab308;"></div>
+                        <div class="terminal-dot" style="background: #22c55e;"></div>
+                      </div>
+                      <span style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">Terminal 42</span>
+                      <button class="btn btn-sm" onclick="copyExampleText()" style="padding: 0.2rem 0.6rem; font-size: 0.72rem;">Copiar Casos</button>
+                    </div>
+                    <pre class="terminal-code" id="desc-examples-code"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna Direita: Guia de Raciocínio, Pseudocódigo & Padrões -->
+            <div style="display: flex; flex-direction: column; gap: 1.25rem; height: 100%; overflow-y: auto;">
+              <!-- Pseudocódigo / Raciocínio -->
+              <div class="desc-card" style="flex: 1;">
+                <div class="desc-card-header" style="background: rgba(6, 182, 212, 0.05);">
+                  <div class="desc-card-title" style="color: #38bdf8;">
+                    <span>🧠 Guia de Raciocínio & Pseudocódigo</span>
+                  </div>
+                </div>
+                <div class="desc-card-body" id="desc-pseudo-container">
+                  <!-- Renderizado via JS -->
+                </div>
+              </div>
+
+              <!-- Padrões Técnicos do Exame -->
+              <div class="desc-card" style="flex: 0 0 auto;">
+                <div class="desc-card-header" style="background: rgba(168, 85, 247, 0.05);">
+                  <div class="desc-card-title" style="color: #c084fc;">
+                    <span>🧩 Padrões Técnicos Requeridos</span>
+                  </div>
+                </div>
+                <div class="desc-card-body" style="padding: 1rem 1.25rem;">
+                  <div id="desc-patterns-list" style="display: flex; flex-direction: column; gap: 0.6rem;"></div>
+                  <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+                    <button class="btn btn-ai" style="flex: 1;" onclick="switchModalTab('pane-ai')">
+                      ✨ Dúvidas com Tutor IA
+                    </button>
+                    <button class="btn" style="flex: 1;" onclick="switchModalTab('pane-code')">
+                      💻 Ver Código & Trace
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 1: Código & Trace -->
+        <div class="modal-pane" id="pane-code">
+          <div class="side-by-side" id="side-by-side-container">
+            <div class="panel-box">
+              <div class="panel-box-header">
+                <span>📄 Código C Submetido (rendu/)</span>
+                <span id="modal-code-lang" style="color: var(--accent-cyan);">C (gcc)</span>
+              </div>
+              <pre class="code-viewer" id="modal-code-content">/* Selecione uma tentativa acima para ver o código */</pre>
+            </div>
+
+            <div class="panel-box">
+              <div class="panel-box-header">
+                <span>🖥️ Output do Tester / Moulinette</span>
+                <span id="modal-error-reason-badge" class="status-badge status-fail">Falha</span>
+              </div>
+              <pre class="trace-viewer" id="modal-trace-content">Sem trace de erro disponível.</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Tutor IA & Chat -->
+        <div class="modal-pane" id="pane-ai">
+          <div class="ai-tutor-section">
+            <div class="ai-header">
+              <div class="ai-title">
+                ✨ Tutor Pedagógico 42 (Chat Interativo & Histórico)
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button class="btn-clear-chat" onclick="clearAiChat()" title="Apagar histórico desta conversa">
+                  🗑️ Limpar Conversa
+                </button>
+                <div class="spinner" id="ai-spinner"></div>
+                <button class="btn btn-primary" id="btn-call-ai" onclick="requestAiTutor()">
+                  ⚡ Diagnosticar com IA
+                </button>
+              </div>
+            </div>
+
+            <div class="ai-response-box active" id="ai-response-box">
+              <div class="ai-chat-thread" id="ai-chat-thread">
+                <!-- Mensagens renderizadas dinamicamente -->
+              </div>
+
+              <!-- Token Usage Summary Bar -->
+              <div class="ai-usage-bar" id="ai-usage-bar" style="display: none;">
+                <div class="usage-item">
+                  <span>Prompt:</span>
+                  <span class="usage-val" id="usage-prompt-tokens">0</span>
+                </div>
+                <div class="usage-item">
+                  <span>Resposta:</span>
+                  <span class="usage-val" id="usage-completion-tokens">0</span>
+                </div>
+                <div class="usage-item">
+                  <span>Total de Tokens:</span>
+                  <span class="usage-val" id="usage-total-tokens">0</span>
+                </div>
+                <div class="usage-item" style="margin-left: auto;">
+                  <span>Custo Estimado:</span>
+                  <span class="usage-val" id="usage-cost-usd" style="color: var(--accent-green);">$0.00000</span>
+                </div>
+              </div>
+
+              <!-- Follow-up Question Input -->
+              <div class="chat-input-bar">
+                <input 
+                  type="text" 
+                  id="ai-user-input" 
+                  class="chat-input-field" 
+                  placeholder="Pergunte algo ao Tutor (ex: 'Como funciona o lookup table?', 'Por que deu segfault?')..." 
+                  onkeydown="if(event.key === 'Enter') sendUserChatMessage()"
+                />
+                <button class="btn btn-primary" id="btn-send-chat" onclick="sendUserChatMessage()">
+                  Enviar 💬
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: Histórico de Tentativas -->
+        <div class="modal-pane" id="pane-history">
+          <div class="table-container" style="flex: 1; overflow-y: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Data / Hora</th>
+                  <th>Duração</th>
+                  <th>Resultado</th>
+                  <th>Motivo do Erro</th>
+                  <th>Autonomia</th>
+                  <th>Bloqueio Principal</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="modal-exercise-history-tbody">
+                <!-- Renderizado dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 4: Autoavaliação Reflexiva -->
+        <div class="modal-pane" id="pane-feedback">
+          <div class="panel-box" style="flex: 1; border: 1px solid rgba(168, 85, 247, 0.35); background: rgba(168, 85, 247, 0.03);">
+            <div class="panel-box-header" style="background: rgba(168, 85, 247, 0.08); color: #c084fc; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700;">🧠 Autoavaliação Reflexiva & Memória Muscular (Tentativa #<span id="modal-feedback-attempt-id">--</span>)</span>
+              <span id="modal-feedback-saved-indicator" style="font-size: 0.78rem; color: var(--accent-green); font-weight: 600; display: none;">✅ Autoavaliação salva com sucesso!</span>
+            </div>
+            <div style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; height: 100%; overflow-y: auto;">
+              <div>
+                <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
+                  Grau de Autonomia na Resolução:
+                </label>
+                <select id="modal-feedback-independence" class="date-input" style="width: 100%; max-width: 450px;">
+                  <option value="">Não informado</option>
+                  <option value="alone">🦾 100% Sozinho (Memória Muscular)</option>
+                  <option value="searched">🔍 Precisei pesquisar / consultar material</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
+                  Ponto de Bloqueio ou Dúvida Principal:
+                </label>
+                <input type="text" id="modal-feedback-stuck-point" class="date-input" placeholder="Ex: Malloc/Free, Off-by-one, ASCII wrap, Segfault, Lógica do loop..." style="width: 100%; max-width: 650px;">
+              </div>
+
+              <div style="flex: 1; display: flex; flex-direction: column;">
+                <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
+                  Notas Reflexivas & Insights Pessoais:
+                </label>
+                <textarea id="modal-feedback-user-notes" class="date-input" rows="4" placeholder="O que aprendi com este teste? Qual detalhe não posso esquecer no exame?" style="width: 100%; flex: 1; min-height: 120px; resize: vertical;"></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary" onclick="saveAttemptFeedback()" id="btn-save-feedback">
+                  💾 Salvar Autoavaliação
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- Modal de Filas Salvas -->
+  <div class="modal-overlay" id="saved-queues-modal" style="display: none;">
+    <div class="modal-window" style="max-width: 720px; max-height: 80vh;">
+      <div class="modal-header">
+        <div class="modal-header-top">
+          <span style="font-weight: 800; font-size: 1.15rem; color: var(--accent-cyan);">📂 Filas Customizadas Salvas</span>
+          <button class="modal-close" onclick="closeSavedQueuesModal()">&times;</button>
+        </div>
+      </div>
+      <div style="padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.85rem;" id="saved-queues-list-container">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Dedicado do Coach de Estratégia (Chat com Memória Persistente) -->
+  <div class="modal-overlay" id="coach-chat-modal" style="display: none;">
+    <div class="modal-window" style="max-width: 900px; height: 86vh; max-height: 860px;">
+      <div class="modal-header">
+        <div class="modal-header-top">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <span style="font-size: 1.3rem;">🧠</span>
+            <div>
+              <div style="font-weight: 800; font-size: 1.15rem; color: #c084fc;">Coach de Estratégia da Escola 42</div>
+              <div style="font-size: 0.76rem; color: var(--text-muted);">Memória persistente conectada ao seu histórico de acertos e bloqueios</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="btn btn-sm" onclick="clearAIStrategyHistory()" style="color: var(--text-muted); font-size: 0.76rem;">
+              🧹 Limpar Histórico
+            </button>
+            <button class="modal-close" onclick="closeCoachChatModal()">&times;</button>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; flex: 1; padding: 1.25rem 1.75rem; overflow: hidden; gap: 1rem;">
+        <div class="strategy-chat-messages" id="strategy-chat-messages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-right: 0.4rem;">
+          <!-- Mensagens renderizadas dinamicamente -->
+        </div>
+        <div class="strategy-input-bar">
+          <input type="text" id="strategy-user-input" class="strategy-input-field" placeholder="Pergunte ao Coach (Ex: 'Quais padrões devo priorizar hoje?', 'Como garantir nota máxima sem Segfault?')" onkeydown="if(event.key === 'Enter') sendStrategyQuestion()">
+          <button class="btn btn-primary" id="btn-send-strategy" onclick="sendStrategyQuestion()">
+            Enviar 💬
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    42 Examshell Active Learning Platform — Desenvolvido para maestria técnica do Rank 02.
+  </footer>
+
+  <script>
+    // Defensive Data Helpers to guarantee zero undefined / null / NaN
+    function safeStr(val, fallback = '') {
+      if (val === null || val === undefined) return fallback;
+      return String(val);
+    }
+
+    function safeNum(val, fallback = 0) {
+      if (val === null || val === undefined || isNaN(Number(val))) return fallback;
+      return Number(val);
+    }
+
+    function safePct(val, fallback = '0.0%') {
+      if (val === null || val === undefined || isNaN(Number(val))) return fallback;
+      return `${Number(val).toFixed(1)}%`;
+    }
+
+    function formatTime(seconds) {
+      if (seconds === null || seconds === undefined || isNaN(Number(seconds))) return '--:--';
+      const sec = Math.max(0, Math.round(Number(seconds)));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    let currentStats = null;
+    let selectedLevel = 'all';
+    let selectedPattern = null;
+    let currentAttemptData = null;
+    let lastKnownAttemptId = 0;
+
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats');
+        currentStats = await res.json();
+        updateKpis(currentStats);
+        renderPatterns(currentStats.pattern_summary);
+        if (currentStats.pattern_summary) {
+          populateReportPatternFilter(currentStats.pattern_summary);
+        }
+        renderExercisesTable();
+        fetchHistory();
+        lastKnownAttemptId = currentStats.latest_attempt_id || 0;
+      } catch (err) {
+        console.error("Falha ao carregar estatísticas:", err);
+      }
+    }
+
+    function populateReportPatternFilter(patterns) {
+      const select = document.getElementById('report-filter-pattern');
+      if (!select || select.children.length > 1) return;
+      patterns.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.pattern;
+        opt.innerText = p.pattern;
+        select.appendChild(opt);
+      });
+    }
+
+    async function fetchHistory() {
+      try {
+        const res = await fetch('/api/history?limit=30');
+        const data = await res.json();
+        renderHistoryTable(data.attempts);
+      } catch (err) {
+        console.error("Falha ao carregar histórico:", err);
+      }
+    }
+
+    function updateKpis(stats) {
+      document.getElementById('kpi-mastered').innerText = stats.mastered_count;
+      document.getElementById('kpi-percentage').innerText = stats.completion_percentage + '%';
+      document.getElementById('kpi-progress-bar').style.width = stats.completion_percentage + '%';
+      document.getElementById('kpi-accuracy').innerText = stats.global_accuracy_rate + '%';
+      document.getElementById('kpi-attempts-total').innerText = stats.total_attempts;
+      document.getElementById('kpi-avg-time').innerText = stats.global_avg_duration_formatted;
+
+      if (stats.most_vulnerable_pattern) {
+        document.getElementById('kpi-vulnerable-pattern').innerText = stats.most_vulnerable_pattern.pattern;
+        document.getElementById('kpi-vulnerable-desc').innerText = 
+          `${stats.most_vulnerable_pattern.accuracy_rate}% acerto (${stats.most_vulnerable_pattern.failures} falhas)`;
+      } else {
+        document.getElementById('kpi-vulnerable-pattern').innerText = "Nenhum";
+        document.getElementById('kpi-vulnerable-desc').innerText = "Sem falhas registradas ainda";
+      }
+    }
+
+    function renderPatterns(patterns) {
+      const container = document.getElementById('patterns-container');
+      container.innerHTML = '';
+
+      patterns.forEach(p => {
+        const card = document.createElement('div');
+        card.className = `pattern-card ${selectedPattern === p.pattern ? 'selected' : ''}`;
+        card.onclick = () => {
+          selectedPattern = (selectedPattern === p.pattern) ? null : p.pattern;
+          renderPatterns(patterns);
+          renderExercisesTable();
+        };
+
+        const rateColor = p.attempts === 0 ? 'var(--text-muted)' : (p.accuracy_rate >= 80 ? 'var(--accent-green)' : (p.accuracy_rate >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)'));
+
+        card.innerHTML = `
+          <div class="pattern-name-row">
+            <span class="pattern-name">${p.pattern}</span>
+            <span style="font-weight: 700; color: ${rateColor};">${p.attempts > 0 ? p.accuracy_rate + '%' : 'Sem Treino'}</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${p.attempts > 0 ? p.accuracy_rate : 0}%; background: ${rateColor};"></div>
+          </div>
+          <div class="pattern-stat-row">
+            <span>Dominadas: ${p.mastered_exercises}/${p.total_exercises}</span>
+            <span>Tempo Médio: ${p.avg_duration_formatted}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function setFilterLevel(level) {
+      selectedLevel = level;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderExercisesTable();
+    }
+
+    function renderExercisesTable() {
+      if (!currentStats || !currentStats.exercises) return;
+      const tbody = document.getElementById('exercises-table-body');
+      tbody.innerHTML = '';
+
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+
+      const filtered = currentStats.exercises.filter(ex => {
+        if (selectedLevel !== 'all' && ex.level !== parseInt(selectedLevel)) return false;
+        if (selectedPattern && !ex.patterns.includes(selectedPattern)) return false;
+        if (query && !ex.id.toLowerCase().includes(query)) return false;
+        return true;
+      });
+
+      filtered.forEach(ex => {
+        const tr = document.createElement('tr');
+
+        let statusBadge = '<span class="status-badge status-unattempted">⚪ Não Iniciado</span>';
+        if (ex.total_attempts > 0) {
+          if (ex.is_mastered) {
+            statusBadge = '<span class="status-badge status-success" title="Dominado: Aprovado sem consulta e última recente OK">🌟 Dominado</span>';
+          } else if (ex.successful_attempts > 0) {
+            statusBadge = '<span class="status-badge status-warning" title="Em Treinamento: Aprovado com consulta ou falha recente">🟡 Em Treino</span>';
+          } else {
+            statusBadge = '<span class="status-badge status-fail" title="Falhando: Nenhuma aprovação ainda">🔴 Falhando</span>';
+          }
+        }
+
+        const tagsHtml = ex.patterns.map(p => `<span class="tag tag-pattern">${p}</span>`).join('');
+        const rateStr = ex.total_attempts > 0 ? `${ex.success_rate}%` : '-';
+        const autonomyStr = (ex.alone_count + ex.searched_count) > 0 ? `${ex.autonomy_rate}%` : (ex.total_attempts > 0 ? '0%' : '-');
+        const reasonStr = ex.last_error_reason ? `<span style="color: var(--accent-red); font-weight: 500;">${ex.last_error_reason}</span>` : '-';
+
+        tr.innerHTML = `
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              <strong>${ex.id}</strong>
+              ${statusBadge}
+            </div>
+          </td>
+          <td><span class="badge-rank">Level ${ex.level}</span></td>
+          <td>${tagsHtml}</td>
+          <td>${ex.total_attempts}</td>
+          <td>${rateStr}</td>
+          <td>${ex.avg_duration_formatted}</td>
+          <td><span title="Taxa de resolução sem consulta" style="color: ${ex.autonomy_rate >= 80 ? 'var(--accent-green)' : (ex.autonomy_rate >= 50 ? 'var(--accent-amber)' : 'var(--text-muted)')}; font-weight: 600;">${autonomyStr}</span></td>
+          <td>
+            <div style="display: flex; gap: 0.35rem; align-items: center;">
+              <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="inspectExercise('${ex.id}')">
+                🔍 Detalhes
+              </button>
+              <button class="btn btn-sm" style="padding: 0.2rem 0.45rem; font-size: 0.72rem; color: var(--accent-cyan); border-color: rgba(6,182,212,0.3);" onclick="addToActiveQueue('${ex.id}')" title="Adicionar à Fila Customizada">
+                + Fila
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderHistoryTable(attempts) {
+      const tbody = document.getElementById('history-table-body');
+      tbody.innerHTML = '';
+
+      if (!attempts || attempts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhuma submissão registrada até o momento.</td></tr>';
+        return;
+      }
+
+      attempts.forEach(a => {
+        const tr = document.createElement('tr');
+        const statusBadge = a.success 
+          ? '<span class="status-badge status-success">Aprovado</span>' 
+          : '<span class="status-badge status-fail">Falhou</span>';
+
+        const reasonBadge = a.error_reason 
+          ? `<span class="tag ${a.success ? '' : 'tag-pattern'}" style="color: ${a.success ? 'var(--accent-green)' : 'var(--accent-red)'}">${a.error_reason}</span>` 
+          : '-';
+
+        tr.innerHTML = `
+          <td>#${a.id}</td>
+          <td><strong>${a.exercise_id}</strong></td>
+          <td style="color: var(--text-muted); font-size: 0.8rem;">${a.timestamp}</td>
+          <td>${a.duration_formatted}</td>
+          <td>${statusBadge}</td>
+          <td>${reasonBadge}</td>
+          <td>
+            <button class="btn btn-primary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" onclick="openAttemptModal(${a.id})">
+              Ver Código & IA
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    let currentExerciseProfile = null;
+    let isSplitViewActive = false;
+    let activeModalTab = 'pane-desc';
+
+    function copySubjectText() {
+      if (!currentExerciseProfile || !currentExerciseProfile.exercise) return;
+      const docs = currentExerciseProfile.exercise.docs || {};
+      const text = docs.subject_raw || document.getElementById('desc-body-text').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btn-copy-subject');
+        if (btn) {
+          const old = btn.innerText;
+          btn.innerText = '✅ Copiado!';
+          setTimeout(() => { btn.innerText = old; }, 2000);
+        }
+      });
+    }
+
+    function copyExampleText() {
+      const code = document.getElementById('desc-examples-code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        alert('Exemplos de teste copiados para a área de transferência!');
+      });
+    }
+
+    function renderExerciseDocumentation(docs, exercise) {
+      if (!docs) docs = {};
+
+      document.getElementById('desc-assignment-name').innerText = docs.assignment_name || exercise.id;
+      document.getElementById('desc-expected-files').innerText = docs.expected_files || `${exercise.id}.c`;
+      document.getElementById('desc-allowed-functions').innerText = docs.allowed_functions || 'write';
+
+      let rawDesc = docs.description_text || docs.subject_raw || 'Nenhum enunciado disponível para este exercício.';
+      
+      // Separar exemplos de terminal se existirem
+      const exampleIdx = rawDesc.indexOf('Examples:');
+      const exampleAltIdx = rawDesc.indexOf('Example:');
+      const splitAt = exampleIdx !== -1 ? exampleIdx : (exampleAltIdx !== -1 ? exampleAltIdx : -1);
+
+      if (splitAt !== -1) {
+        const descPart = rawDesc.substring(0, splitAt).trim();
+        const examplePart = rawDesc.substring(splitAt).trim();
+        document.getElementById('desc-body-text').innerText = descPart;
+        document.getElementById('desc-examples-code').innerText = examplePart;
+        document.getElementById('desc-examples-container').style.display = 'block';
+      } else if (rawDesc.includes('$>')) {
+        const firstDollar = rawDesc.indexOf('$>');
+        const descPart = rawDesc.substring(0, firstDollar).trim();
+        const examplePart = rawDesc.substring(firstDollar).trim();
+        document.getElementById('desc-body-text').innerText = descPart;
+        document.getElementById('desc-examples-code').innerText = examplePart;
+        document.getElementById('desc-examples-container').style.display = 'block';
+      } else {
+        document.getElementById('desc-body-text').innerText = rawDesc;
+        document.getElementById('desc-examples-container').style.display = 'none';
+      }
+
+      // Renderizar Pseudocódigo formatado
+      const pseudoContainer = document.getElementById('desc-pseudo-container');
+      pseudoContainer.innerHTML = '';
+
+      const pseudoRaw = docs.pseudocode_raw || '';
+      if (!pseudoRaw) {
+        pseudoContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Pseudocódigo não cadastrado ainda. Pergunte ao Tutor IA!</p>';
+      } else {
+        const lines = pseudoRaw.split('\n');
+        let objective = '';
+        const steps = [];
+        let inSteps = false;
+
+        lines.forEach(line => {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('**Objetivo:**')) {
+            objective = trimmed.replace('**Objetivo:**', '').trim();
+          } else if (trimmed.startsWith('**Passo a passo:**') || trimmed.startsWith('Passo a passo:')) {
+            inSteps = true;
+          } else if (/^\d+\./.test(trimmed)) {
+            steps.push(trimmed);
+          } else if (inSteps && trimmed.startsWith('-')) {
+            steps.push(trimmed.replace('-', '').trim());
+          }
+        });
+
+        if (objective) {
+          const objDiv = document.createElement('div');
+          objDiv.style.cssText = 'background: rgba(6, 182, 212, 0.08); border-left: 3px solid var(--accent-cyan); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.88rem; color: #e2e8f0;';
+          objDiv.innerHTML = `<strong style="color: #38bdf8;">🎯 Objetivo:</strong> ${objective}`;
+          pseudoContainer.appendChild(objDiv);
+        }
+
+        if (steps.length > 0) {
+          const stepList = document.createElement('div');
+          stepList.style.cssText = 'display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem;';
+
+          steps.forEach((stepText, idx) => {
+            const cleanText = stepText.replace(/^\d+\.\s*/, '');
+            const item = document.createElement('div');
+            item.style.cssText = 'display: flex; gap: 0.75rem; align-items: flex-start; background: rgba(255, 255, 255, 0.02); padding: 0.65rem 0.9rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.04); font-size: 0.85rem;';
+            item.innerHTML = `
+              <div style="background: rgba(6, 182, 212, 0.2); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.4); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; flex-shrink: 0;">
+                ${idx + 1}
+              </div>
+              <div style="flex: 1; color: #cbd5e1; line-height: 1.45;">${cleanText}</div>
+            `;
+            stepList.appendChild(item);
+          });
+          pseudoContainer.appendChild(stepList);
+        } else {
+          const rawDiv = document.createElement('div');
+          rawDiv.innerHTML = renderMarkdown(pseudoRaw);
+          pseudoContainer.appendChild(rawDiv);
+        }
+      }
+
+      // Renderizar Padrões Técnicos da Questão
+      const patternsContainer = document.getElementById('desc-patterns-list');
+      patternsContainer.innerHTML = '';
+      (exercise.patterns || []).forEach(p => {
+        const item = document.createElement('div');
+        item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; background: rgba(168, 85, 247, 0.06); border: 1px solid rgba(168, 85, 247, 0.2); padding: 0.6rem 0.9rem; border-radius: 8px;';
+        item.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="color: #c084fc; font-weight: 700; font-size: 0.85rem;">⚡ ${p}</span>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 0.15rem 0.5rem; border-radius: 4px;">Padrão 42</span>
+        `;
+        patternsContainer.appendChild(item);
+      });
+    }
+
+    function switchModalTab(paneId) {
+      activeModalTab = paneId;
+
+      // Se estiver em split-view e o usuário clicar em uma aba de tela cheia
+      if (isSplitViewActive && (paneId === 'pane-desc' || paneId === 'pane-history' || paneId === 'pane-feedback')) {
+        toggleModalSplitView();
+      }
+
+      document.querySelectorAll('.modal-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === paneId);
+      });
+      document.querySelectorAll('.modal-pane').forEach(pane => {
+        pane.classList.toggle('active', pane.id === paneId);
+      });
+
+      // Se mudar para a aba do chat, rolar até o fim automaticamente
+      if (paneId === 'pane-ai') {
+        const thread = document.getElementById('ai-chat-thread');
+        if (thread) thread.scrollTop = thread.scrollHeight;
+      }
+    }
+
+    function toggleModalSplitView() {
+      isSplitViewActive = !isSplitViewActive;
+      const body = document.getElementById('modal-main-body');
+      const btnToggle = document.getElementById('btn-toggle-split');
+      const label = document.getElementById('split-toggle-label');
+
+      if (isSplitViewActive) {
+        btnToggle.classList.add('active');
+        label.innerText = 'Modo Abas Normal';
+        body.classList.add('split-layout');
+        
+        // Exibir tanto o código quanto a IA simultaneamente
+        document.getElementById('pane-desc').style.display = 'none';
+        document.getElementById('pane-code').style.display = 'flex';
+        document.getElementById('pane-ai').style.display = 'flex';
+        document.getElementById('pane-history').style.display = 'none';
+        document.getElementById('pane-feedback').style.display = 'none';
+
+        const thread = document.getElementById('ai-chat-thread');
+        if (thread) thread.scrollTop = thread.scrollHeight;
+      } else {
+        btnToggle.classList.remove('active');
+        label.innerText = 'Modo Dividido (Código + Chat)';
+        body.classList.remove('split-layout');
+
+        document.getElementById('pane-desc').style.display = '';
+        document.getElementById('pane-code').style.display = '';
+        document.getElementById('pane-ai').style.display = '';
+        document.getElementById('pane-history').style.display = '';
+        document.getElementById('pane-feedback').style.display = '';
+
+        switchModalTab(activeModalTab);
+      }
+    }
+
+    function selectAttemptInModal(attemptId) {
+      if (!currentExerciseProfile || !currentExerciseProfile.attempts) return;
+      const att = currentExerciseProfile.attempts.find(a => a.id === attemptId);
+      if (!att) return;
+
+      currentAttemptData = att;
+
+      // Atualiza chips ativos na timeline
+      document.querySelectorAll('.attempt-chip').forEach(c => {
+        c.classList.toggle('active', Number(c.getAttribute('data-id')) === att.id);
+      });
+
+      // Atualiza código e trace
+      document.getElementById('modal-code-content').innerText = att.submitted_code || '/* Nenhum código registrado nesta tentativa */';
+      document.getElementById('modal-trace-content').innerText = att.error_trace || '/* Sem trace de erro (sucesso ou tester sem saída) */';
+
+      // Badge de resultado
+      const reasonBadge = document.getElementById('modal-error-reason-badge');
+      reasonBadge.innerText = att.error_reason || (att.success ? 'Aprovado' : 'Falha');
+      reasonBadge.className = `status-badge ${att.success ? 'status-success' : 'status-fail'}`;
+
+      // Campos de autoavaliação
+      document.getElementById('modal-feedback-attempt-id').innerText = att.id;
+      document.getElementById('modal-feedback-independence').value = att.independence_status || '';
+      document.getElementById('modal-feedback-stuck-point').value = att.stuck_point || '';
+      document.getElementById('modal-feedback-user-notes').value = att.user_notes || '';
+      document.getElementById('modal-feedback-saved-indicator').style.display = 'none';
+    }
+
+    async function openExerciseModal(exerciseId, targetAttemptId = null) {
+      try {
+        const res = await fetch(`/api/exercise/${exerciseId}`);
+        if (!res.ok) {
+          alert(`Erro ao buscar dados do exercício '${exerciseId}'`);
+          return;
+        }
+        const profile = await res.json();
+        currentExerciseProfile = profile;
+
+        const ex = profile.exercise;
+        const stats = profile.stats;
+        const attempts = profile.attempts || [];
+
+        // Header Title & Badges
+        document.getElementById('modal-exercise-title').innerText = ex.id;
+        document.getElementById('modal-exercise-level').innerText = `Level ${ex.level}`;
+
+        const patContainer = document.getElementById('modal-patterns-badges');
+        patContainer.innerHTML = '';
+        (ex.patterns || []).forEach(p => {
+          const badge = document.createElement('span');
+          badge.className = 'tag tag-pattern';
+          badge.style.fontSize = '0.72rem';
+          badge.innerText = p;
+          patContainer.appendChild(badge);
+        });
+
+        // Scorecard da Situação Atual
+        const statusEl = document.getElementById('modal-scorecard-status');
+        let masteryHtml = '';
+        if (stats.mastery_status === 'mastered' || stats.is_mastered) {
+          masteryHtml = '<span class="status-badge status-success" style="background: rgba(34, 197, 94, 0.2); border: 1px solid var(--accent-green);" title="Aprovado com 100% de Autonomia e última recente OK">🌟 Dominado</span>';
+        } else if (stats.mastery_status === 'training' || stats.total_attempts > 0) {
+          masteryHtml = '<span class="status-badge status-warning" style="background: rgba(245, 158, 11, 0.2); border: 1px solid var(--accent-amber);" title="Em Treinamento: Aprovado com consulta ou falha recente">🟡 Em Treinamento</span>';
+        } else {
+          masteryHtml = '<span class="status-badge" style="background: rgba(255, 255, 255, 0.08); color: var(--text-muted);">⚪ Não Iniciado</span>';
+        }
+        statusEl.innerHTML = masteryHtml;
+
+        const autoEl = document.getElementById('modal-scorecard-autonomy');
+        if (stats.total_attempts > 0) {
+          autoEl.innerHTML = `<strong>${stats.autonomy_rate}%</strong> <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">(${stats.alone_count} sozinho / ${stats.searched_count} ajuda)</span>`;
+        } else {
+          autoEl.innerText = '--';
+        }
+
+        document.getElementById('modal-scorecard-attempts').innerText = `${stats.total_attempts} (${stats.success_rate}% acerto)`;
+        document.getElementById('modal-scorecard-best').innerText = stats.best_time_formatted || '--:--';
+        document.getElementById('modal-scorecard-avg').innerText = stats.avg_duration_formatted || '--:--';
+        document.getElementById('modal-scorecard-last').innerText = stats.last_attempt_at ? stats.last_attempt_at : 'Nunca tentado';
+
+        // Renderizar Documentação Oficial (Subject & Pseudocódigo)
+        renderExerciseDocumentation(ex.docs, ex);
+
+        // Timeline de tentativas antigas
+        const chipsContainer = document.getElementById('modal-attempts-chips');
+        chipsContainer.innerHTML = '';
+        document.getElementById('modal-tab-history-count').innerText = attempts.length;
+
+        if (attempts.length === 0) {
+          chipsContainer.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-muted);">Nenhuma tentativa registrada ainda para este exercício.</span>';
+          currentAttemptData = null;
+          document.getElementById('modal-code-content').innerText = '/* Nenhuma submissão registrada ainda para este exercício. */';
+          document.getElementById('modal-trace-content').innerText = 'Nenhum trace disponível. Pratique no terminal com `./rank02_menu.sh`!';
+          document.getElementById('modal-error-reason-badge').innerText = 'Sem testes';
+          document.getElementById('modal-error-reason-badge').className = 'status-badge';
+          document.getElementById('modal-feedback-attempt-id').innerText = '--';
+          document.getElementById('modal-feedback-independence').value = '';
+          document.getElementById('modal-feedback-stuck-point').value = '';
+          document.getElementById('modal-feedback-user-notes').value = '';
+        } else {
+          attempts.forEach((att) => {
+            const chip = document.createElement('div');
+            chip.className = `attempt-chip ${att.success ? 'chip-success' : 'chip-fail'}`;
+            chip.setAttribute('data-id', att.id);
+            const badgeClass = att.success ? 'badge-ok' : 'badge-ko';
+            const badgeText = att.success ? 'OK' : 'KO';
+            const autoIcon = att.independence_status === 'alone' ? '<span title="100% Sozinho">🦾</span>' : (att.independence_status === 'searched' ? '<span title="Com Pesquisa">🔍</span>' : '');
+            const timeStr = att.timestamp ? (att.timestamp.split(' ')[1] || att.timestamp) : '';
+
+            chip.innerHTML = `
+              <span class="attempt-chip-badge ${badgeClass}">${badgeText}</span>
+              <strong>#${att.id}</strong>
+              <span style="font-family: var(--font-mono); font-weight: 600; color: ${att.success ? 'var(--accent-green)' : 'var(--accent-red)'};">${safeStr(att.duration_formatted, '--:--')}</span>
+              <span style="color: var(--text-muted); font-size: 0.72rem; font-family: var(--font-mono);">${timeStr}</span>
+              ${autoIcon}
+            `;
+            chip.onclick = () => selectAttemptInModal(att.id);
+            chipsContainer.appendChild(chip);
+          });
+
+          // Selecionar tentativa alvo ou a primeira (mais recente)
+          const targetId = targetAttemptId !== null ? targetAttemptId : attempts[0].id;
+          selectAttemptInModal(targetId);
+        }
+
+        // Renderizar Tabela do Histórico
+        const histTbody = document.getElementById('modal-exercise-history-tbody');
+        histTbody.innerHTML = '';
+        if (attempts.length === 0) {
+          histTbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhuma tentativa registrada para este exercício.</td></tr>';
+        } else {
+          attempts.forEach(a => {
+            const tr = document.createElement('tr');
+            const statusBadge = a.success 
+              ? '<span class="status-badge status-success">Aprovado</span>' 
+              : '<span class="status-badge status-fail">Falhou</span>';
+            const indepStr = a.independence_status === 'alone' ? '🦾 100% Sozinho' : (a.independence_status === 'searched' ? '🔍 Pesquisou' : '-');
+            const stuckStr = a.stuck_point ? `<span style="color: var(--accent-amber);">${a.stuck_point}</span>` : '-';
+
+            tr.innerHTML = `
+              <td><strong>#${a.id}</strong></td>
+              <td style="color: var(--text-muted); font-size: 0.8rem;">${a.timestamp}</td>
+              <td>${a.duration_formatted}</td>
+              <td>${statusBadge}</td>
+              <td><span class="tag" style="color: ${a.success ? 'var(--accent-green)' : 'var(--accent-red)'}">${a.error_reason}</span></td>
+              <td>${indepStr}</td>
+              <td>${stuckStr}</td>
+              <td>
+                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="selectAttemptInModal(${a.id}); switchModalTab('pane-code');">
+                  Ver Código
+                </button>
+              </td>
+            `;
+            histTbody.appendChild(tr);
+          });
+        }
+
+        // Renderizar Mensagens de Chat da IA
+        renderChatMessages(profile.ai_messages || []);
+
+        // Reset inputs
+        document.getElementById('ai-user-input').value = '';
+        document.getElementById('ai-usage-bar').style.display = 'none';
+
+        // Garante que o modo split ou aba inicial seja mantido
+        if (isSplitViewActive) {
+          document.getElementById('modal-main-body').classList.add('split-layout');
+          document.getElementById('pane-desc').style.display = 'none';
+          document.getElementById('pane-code').style.display = 'flex';
+          document.getElementById('pane-ai').style.display = 'flex';
+          document.getElementById('pane-history').style.display = 'none';
+          document.getElementById('pane-feedback').style.display = 'none';
+        } else {
+          const initialTab = targetAttemptId !== null ? 'pane-code' : 'pane-desc';
+          switchModalTab(initialTab);
+        }
+
+        // Abre o modal
+        document.getElementById('attempt-modal').classList.add('active');
+      } catch (err) {
+        console.error("Erro ao carregar modal do exercício:", err);
+        alert("Erro ao carregar detalhes do exercício: " + err);
+      }
+    }
+
+    async function openAttemptModal(attemptId) {
+      try {
+        const res = await fetch(`/api/attempt/${attemptId}`);
+        if (!res.ok) {
+          alert("Tentativa não encontrada");
+          return;
+        }
+        const data = await res.json();
+        await openExerciseModal(data.exercise_id, attemptId);
+      } catch (err) {
+        alert("Erro ao buscar detalhes da tentativa: " + err);
+      }
+    }
+
+    async function saveAttemptFeedback() {
+      if (!currentAttemptData) return;
+      const attemptId = currentAttemptData.id;
+      const indep = document.getElementById('modal-feedback-independence').value;
+      const stuck = document.getElementById('modal-feedback-stuck-point').value.trim();
+      const notes = document.getElementById('modal-feedback-user-notes').value.trim();
+      const btn = document.getElementById('btn-save-feedback');
+      const ind = document.getElementById('modal-feedback-saved-indicator');
+
+      btn.disabled = true;
+      btn.innerText = "Salvando...";
+
+      try {
+        const res = await fetch(`/api/attempts/${attemptId}/feedback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            independence_status: indep,
+            stuck_point: stuck,
+            user_notes: notes
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          currentAttemptData.independence_status = indep;
+          currentAttemptData.stuck_point = stuck;
+          currentAttemptData.user_notes = notes;
+          ind.style.display = 'inline';
+          setTimeout(() => { ind.style.display = 'none'; }, 3500);
+
+          if (currentTab === 'reports') {
+            fetchReportsAnalytics();
+          }
+          fetchHistory();
+        } else {
+          alert("Erro ao salvar autoavaliação: " + (data.error || 'Falha na resposta'));
+        }
+      } catch (err) {
+        alert("Erro de conexão ao salvar autoavaliação: " + err);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "💾 Salvar Autoavaliação";
+      }
+    }
+
+    async function loadAiChatHistory(exerciseId, attemptId) {
+      const thread = document.getElementById('ai-chat-thread');
+      thread.innerHTML = '<div style="color: var(--text-muted); font-size: 0.82rem; text-align: center; padding: 1rem;">Carregando histórico do tutor...</div>';
+
+      try {
+        const res = await fetch(`/api/ai-chat/history?exercise_id=${encodeURIComponent(exerciseId)}&attempt_id=${attemptId}`);
+        const data = await res.json();
+        renderChatMessages(data.messages || []);
+      } catch (err) {
+        thread.innerHTML = `<div style="color: var(--text-muted); font-size: 0.82rem; text-align: center;">Clique em '⚡ Diagnosticar com IA' para iniciar a mentoria.</div>`;
+      }
+    }
+
+    function renderChatMessages(messages) {
+      const thread = document.getElementById('ai-chat-thread');
+      thread.innerHTML = '';
+
+      if (!messages || messages.length === 0) {
+        thread.innerHTML = `
+          <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 8px;">
+            💬 Nenhuma conversa gravada ainda para este exercício. Clique em <strong>'⚡ Diagnosticar com IA'</strong> ou faça uma pergunta abaixo para começar!
+          </div>
+        `;
+        return;
+      }
+
+      messages.forEach(msg => {
+        const bubble = document.createElement('div');
+        const isUser = msg.role === 'user';
+        bubble.className = `chat-bubble ${isUser ? 'chat-bubble-user' : 'chat-bubble-assistant'}`;
+
+        const authorLabel = isUser ? '👤 Aluno 42' : '✨ Tutor Pedagógico 42';
+        const authorClass = isUser ? 'author-user' : 'author-assistant';
+        const timeStr = msg.timestamp ? msg.timestamp.split(' ')[1] || msg.timestamp : '';
+
+        const formattedContent = isUser 
+          ? `<p style="margin: 0; white-space: pre-wrap;">${msg.message}</p>` 
+          : renderMarkdown(msg.message);
+
+        bubble.innerHTML = `
+          <div class="chat-bubble-header">
+            <span class="${authorClass}">${authorLabel}</span>
+            <span style="font-size: 0.7rem; font-family: var(--font-mono);">${timeStr}</span>
+          </div>
+          <div>${formattedContent}</div>
+        `;
+        thread.appendChild(bubble);
+      });
+
+      // Rolar para a última mensagem automaticamente
+      thread.scrollTop = thread.scrollHeight;
+    }
+
+    async function inspectExercise(exerciseId) {
+      await openExerciseModal(exerciseId);
+    }
+
+    function closeModal() {
+      document.getElementById('attempt-modal').classList.remove('active');
+    }
+
+    // Markdown parser leve zero-dependency para renderização rica do Tutor IA
+    function renderMarkdown(md) {
+      if (!md) return '';
+
+      // Preservar e extrair blocos de código ```c ... ```
+      const codeBlocks = [];
+      let text = md.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+        const id = `__CODE_BLOCK_${codeBlocks.length}__`;
+        const escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        codeBlocks.push(`<pre><code class="language-${lang || 'c'}">${escaped}</code></pre>`);
+        return id;
+      });
+
+      // Escape HTML básico fora dos blocos de código
+      text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      // Headings
+      text = text.replace(/^#### (.*?)$/gm, '<h4>$1</h4>');
+      text = text.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+      text = text.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+      text = text.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+
+      // Horizontal Rules
+      text = text.replace(/^---$/gm, '<hr>');
+
+      // Blockquotes
+      text = text.replace(/^> (.*?)$/gm, '<blockquote>$1</blockquote>');
+
+      // Bold & Italic
+      text = text.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+      text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+      // Inline code
+      text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Unordered lists (- or *)
+      text = text.replace(/^\s*[-*]\s+(.*?)$/gm, '<li>$1</li>');
+      text = text.replace(/(<li>.*?<\/li>(\n<li>.*?<\/li>)*)/g, '<ul>$1</ul>');
+
+      // Ordered lists (1., 2., etc.)
+      text = text.replace(/^\s*\d+\.\s+(.*?)$/gm, '<oli>$1</oli>');
+      text = text.replace(/(<oli>.*?<\/oli>(\n<oli>.*?<\/oli>)*)/g, '<ol>$1</ol>');
+      text = text.replace(/<oli>/g, '<li>').replace(/<\/oli>/g, '</li>');
+
+      // Paragraphs
+      const lines = text.split('\n\n');
+      text = lines.map(p => {
+        p = p.trim();
+        if (!p) return '';
+        if (p.startsWith('<h') || p.startsWith('<ul>') || p.startsWith('<ol>') || p.startsWith('<hr>') || p.startsWith('<blockquote>') || p.startsWith('__CODE_BLOCK_')) {
+          return p;
+        }
+        return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+      }).join('\n');
+
+      // Re-injetar blocos de código preservados
+      codeBlocks.forEach((block, idx) => {
+        text = text.replace(`__CODE_BLOCK_${idx}__`, block);
+      });
+
+      return text;
+    }
+
+    async function requestAiTutor(customQuestion = null) {
+      const exerciseId = currentAttemptData ? currentAttemptData.exercise_id : (currentExerciseProfile ? currentExerciseProfile.exercise.id : null);
+      if (!exerciseId) return;
+      const spinner = document.getElementById('ai-spinner');
+      const btn = document.getElementById('btn-call-ai');
+      const btnSend = document.getElementById('btn-send-chat');
+      const usageBar = document.getElementById('ai-usage-bar');
+      const thread = document.getElementById('ai-chat-thread');
+
+      if (spinner) spinner.style.display = 'inline-block';
+      if (btn) btn.disabled = true;
+      if (btnSend) btnSend.disabled = true;
+
+      // Adicionar bolha temporária de carregamento
+      const loadingBubble = document.createElement('div');
+      loadingBubble.className = 'chat-bubble chat-bubble-assistant';
+      loadingBubble.id = 'temp-ai-loading';
+      loadingBubble.innerHTML = `
+        <div class="chat-bubble-header"><span class="author-assistant">✨ Tutor Pedagógico 42</span></div>
+        <div style="color: var(--text-muted); font-style: italic; display: flex; align-items: center; gap: 0.5rem;">
+          <div class="spinner" style="display: inline-block;"></div> O tutor está analisando seu raciocínio...
+        </div>
+      `;
+      thread.appendChild(loadingBubble);
+      thread.scrollTop = thread.scrollHeight;
+
+      try {
+        const payload = {
+          attempt_id: currentAttemptData ? currentAttemptData.id : null,
+          exercise_id: exerciseId,
+          code: currentAttemptData ? (currentAttemptData.submitted_code || '') : '',
+          trace: currentAttemptData ? (currentAttemptData.error_trace || '') : '',
+        };
+        if (customQuestion) {
+          payload.user_message = customQuestion;
+        }
+
+        const res = await fetch('/api/ai-tutor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        
+        // Remove bolha temporária
+        const temp = document.getElementById('temp-ai-loading');
+        if (temp) temp.remove();
+
+        if (!res.ok || data.error) {
+          const errMsg = data.error || (data.detail ? `Erro: ${data.detail}` : `Falha no Tutor IA (HTTP ${res.status})`);
+          renderChatMessages([
+            { role: 'assistant', message: `⚠️ **Aviso de Conectividade da IA**\n\n${errMsg}\n\n*Verifique as credenciais no arquivo .env.*` }
+          ]);
+          return;
+        }
+
+        if (data.messages && data.messages.length > 0) {
+          renderChatMessages(data.messages);
+        } else {
+          // Fallback para tutor_response
+          renderChatMessages([
+            { role: 'assistant', message: data.tutor_response || 'Nenhuma resposta recebida do tutor.' }
+          ]);
+        }
+
+        // Exibir contagem de tokens e custo se disponíveis
+        if (data.usage) {
+          document.getElementById('usage-prompt-tokens').innerText = Number(data.usage.prompt_tokens || 0).toLocaleString();
+          document.getElementById('usage-completion-tokens').innerText = Number(data.usage.completion_tokens || 0).toLocaleString();
+          document.getElementById('usage-total-tokens').innerText = Number(data.usage.total_tokens || 0).toLocaleString();
+          
+          const cost = data.usage.estimated_cost_usd !== undefined ? `$${Number(data.usage.estimated_cost_usd).toFixed(5)}` : '$0.00';
+          document.getElementById('usage-cost-usd').innerText = cost;
+          usageBar.style.display = 'flex';
+        } else {
+          usageBar.style.display = 'none';
+        }
+      } catch (err) {
+        const temp = document.getElementById('temp-ai-loading');
+        if (temp) temp.remove();
+        renderChatMessages([
+          { role: 'assistant', message: `⚠️ **Falha de Comunicação com o Backend**\n\nNão foi possível processar a requisição com o Tutor IA (${err.message}).` }
+        ]);
+      } finally {
+        if (spinner) spinner.style.display = 'none';
+        if (btn) btn.disabled = false;
+        if (btnSend) btnSend.disabled = false;
+      }
+    }
+
+    async function sendUserChatMessage() {
+      const input = document.getElementById('ai-user-input');
+      const question = input.value.trim();
+      if (!question) return;
+
+      input.value = '';
+      await requestAiTutor(question);
+    }
+
+    async function clearAiChat() {
+      const exerciseId = currentAttemptData ? currentAttemptData.exercise_id : (currentExerciseProfile ? currentExerciseProfile.exercise.id : null);
+      if (!exerciseId) return;
+      if (!confirm(`Deseja realmente apagar o histórico de mensagens da IA para o exercício '${exerciseId}'?`)) return;
+
+      try {
+        await fetch('/api/ai-chat/clear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ exercise_id: exerciseId })
+        });
+        await loadAiChatHistory(exerciseId, currentAttemptData ? currentAttemptData.id : null);
+        document.getElementById('ai-usage-bar').style.display = 'none';
+      } catch (err) {
+        alert("Erro ao limpar histórico: " + err);
+      }
+    }
+
+    // =========================================================================
+    // Tab Navigation & Temporal Analytics
+    // =========================================================================
+    let currentTab = 'overview';
+    let timelineData = [];
+    let selectedTimelineDate = null;
+    let activePreset = 'all';
+
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      if (tabId === 'overview') {
+        document.getElementById('tab-btn-overview').classList.add('active');
+        document.getElementById('tab-content-overview').classList.add('active');
+      } else if (tabId === 'temporal') {
+        document.getElementById('tab-btn-temporal').classList.add('active');
+        document.getElementById('tab-content-temporal').classList.add('active');
+        if (timelineData.length === 0) {
+          fetchTimeline();
+        }
+      } else if (tabId === 'reports') {
+        document.getElementById('tab-btn-reports').classList.add('active');
+        document.getElementById('tab-content-reports').classList.add('active');
+        fetchReportsAnalytics();
+      } else if (tabId === 'custom-queue') {
+        document.getElementById('tab-btn-custom-queue').classList.add('active');
+        document.getElementById('tab-content-custom-queue').classList.add('active');
+        initCustomQueueTab();
+      } else if (tabId === 'ai-coach') {
+        document.getElementById('tab-btn-ai-coach').classList.add('active');
+        document.getElementById('tab-content-ai-coach').classList.add('active');
+        initAICoachTab();
+      }
+    }
+
+    let reportsData = null;
+
+    async function fetchReportsAnalytics() {
+      try {
+        const start = document.getElementById('report-filter-start').value;
+        const end = document.getElementById('report-filter-end').value;
+        const level = document.getElementById('report-filter-level').value;
+        const pattern = document.getElementById('report-filter-pattern').value;
+        const exercise = document.getElementById('report-filter-exercise').value.trim();
+
+        const params = [];
+        if (start) params.push(`start_date=${encodeURIComponent(start)}`);
+        if (end) params.push(`end_date=${encodeURIComponent(end)}`);
+        if (level) params.push(`level=${encodeURIComponent(level)}`);
+        if (pattern) params.push(`pattern=${encodeURIComponent(pattern)}`);
+        if (exercise) params.push(`exercise=${encodeURIComponent(exercise)}`);
+
+        const query = params.length > 0 ? '?' + params.join('&') : '';
+        const res = await fetch(`/api/reports/analytics${query}`);
+        const data = await res.json();
+        reportsData = data;
+        renderReportsAnalytics(data);
+      } catch (err) {
+        console.error("Erro ao carregar relatórios analíticos:", err);
+      }
+    }
+
+    function resetReportFilters() {
+      document.getElementById('report-filter-start').value = '';
+      document.getElementById('report-filter-end').value = '';
+      document.getElementById('report-filter-level').value = '';
+      document.getElementById('report-filter-pattern').value = '';
+      document.getElementById('report-filter-exercise').value = '';
+      fetchReportsAnalytics();
+    }
+
+    function renderReportsAnalytics(data) {
+      if (!data) return;
+
+      // 1. Autonomia & Memória Muscular
+      const auto = data.autonomy_report || {};
+      const aloneCount = auto.alone_count || 0;
+      const searchedCount = auto.searched_count || 0;
+      const totalEval = auto.total_evaluated || 0;
+      const totalSub = auto.total_submissions || 0;
+      const alonePct = auto.alone_percentage || 0;
+      const searchedPct = auto.searched_percentage || 0;
+
+      document.getElementById('autonomy-count-alone').innerText = aloneCount;
+      document.getElementById('autonomy-pct-alone-detail').innerText = `${alonePct}%`;
+      document.getElementById('autonomy-count-searched').innerText = searchedCount;
+      document.getElementById('autonomy-pct-searched-detail').innerText = `${searchedPct}%`;
+      document.getElementById('autonomy-total-count').innerText = totalEval;
+      document.getElementById('autonomy-total-submissions').innerText = totalSub;
+      document.getElementById('donut-pct-alone').innerText = `${alonePct}%`;
+
+      // Donut Chart background
+      const donut = document.getElementById('autonomy-donut-chart');
+      if (donut) {
+        if (totalEval === 0) {
+          donut.style.background = 'conic-gradient(rgba(255,255,255,0.1) 0% 100%)';
+        } else {
+          donut.style.background = `conic-gradient(var(--accent-green) 0% ${alonePct}%, var(--accent-amber) ${alonePct}% ${alonePct + searchedPct}%, rgba(255,255,255,0.1) ${alonePct + searchedPct}% 100%)`;
+        }
+      }
+
+      // Top 5 Stuck Points
+      const stuckContainer = document.getElementById('top-stuck-points-list');
+      stuckContainer.innerHTML = '';
+      if (!auto.top_stuck_points || auto.top_stuck_points.length === 0) {
+        stuckContainer.innerHTML = '<div style="color: var(--text-muted); font-style: italic;">Nenhum bloqueio registrado no período.</div>';
+      } else {
+        auto.top_stuck_points.forEach((pt, idx) => {
+          const item = document.createElement('div');
+          item.style.display = 'flex';
+          item.style.alignItems = 'center';
+          item.style.justifyContent = 'space-between';
+          item.style.padding = '0.35rem 0.5rem';
+          item.style.background = 'rgba(255,255,255,0.03)';
+          item.style.borderRadius = '6px';
+          item.innerHTML = `
+            <span><strong style="color: var(--accent-amber);">${idx + 1}.</strong> ${pt.stuck_point}</span>
+            <span class="tag" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">${pt.count}x</span>
+          `;
+          stuckContainer.appendChild(item);
+        });
+      }
+
+      // 2. Raio-X por Nível
+      const lvlBody = document.getElementById('reports-level-table-body');
+      lvlBody.innerHTML = '';
+      (data.level_report || []).forEach(l => {
+        const tr = document.createElement('tr');
+        const accRate = safeNum(l.accuracy_rate !== undefined ? l.accuracy_rate : l.success_rate);
+        const autoRate = safeNum(l.alone_rate !== undefined ? l.alone_rate : l.autonomy_rate);
+        const totAtt = safeNum(l.total_attempts);
+        const aloneCnt = safeNum(l.alone_count !== undefined ? l.alone_count : l.alone_attempts);
+        const masteredCnt = safeNum(l.mastered_exercises !== undefined ? l.mastered_exercises : (l.passed_unique !== undefined ? l.passed_unique : l.mastered_alone_unique));
+        const totalEx = safeNum(l.total_exercises);
+        const avgDur = safeStr(l.avg_duration_formatted, formatTime(l.avg_duration_seconds));
+
+        const accColor = accRate >= 80 ? 'var(--accent-green)' : (accRate >= 50 ? 'var(--accent-amber)' : (totAtt === 0 ? 'var(--text-muted)' : 'var(--accent-red)'));
+        const autoColor = autoRate >= 80 ? 'var(--accent-green)' : (autoRate >= 50 ? 'var(--accent-amber)' : (aloneCnt === 0 ? 'var(--text-muted)' : 'var(--accent-red)'));
+
+        tr.innerHTML = `
+          <td><span class="badge-rank" style="font-size: 0.85rem;">Level ${safeNum(l.level)}</span></td>
+          <td>${totalEx}</td>
+          <td><strong style="color: var(--accent-green);">${masteredCnt}</strong> / ${totalEx}</td>
+          <td>${totAtt}</td>
+          <td><span style="font-weight: 700; color: ${accColor};">${totAtt > 0 ? accRate.toFixed(1) + '%' : '-'}</span></td>
+          <td><span style="font-weight: 700; color: ${autoColor};">${aloneCnt > 0 ? autoRate.toFixed(1) + '%' : (totAtt > 0 ? '0.0%' : '-')}</span></td>
+          <td>${avgDur}</td>
+        `;
+        lvlBody.appendChild(tr);
+      });
+
+      // Padrões Técnicos Bars
+      const patBars = document.getElementById('reports-patterns-bars-container');
+      patBars.innerHTML = '';
+      if (currentStats && currentStats.pattern_summary) {
+        currentStats.pattern_summary.forEach(p => {
+          const card = document.createElement('div');
+          card.style.background = 'var(--bg-terminal)';
+          card.style.border = '1px solid var(--border-subtle)';
+          card.style.borderRadius = '8px';
+          card.style.padding = '0.75rem 1rem';
+
+          const rateColor = p.attempts === 0 ? 'var(--text-muted)' : (p.accuracy_rate >= 80 ? 'var(--accent-green)' : (p.accuracy_rate >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)'));
+
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+              <span style="font-weight: 600; font-size: 0.85rem;">${p.pattern}</span>
+              <span style="font-weight: 700; font-size: 0.85rem; color: ${rateColor};">${p.attempts > 0 ? p.accuracy_rate + '%' : 'Sem Treino'}</span>
+            </div>
+            <div class="progress-bar-bg" style="height: 6px; margin-bottom: 0.4rem;">
+              <div class="progress-bar-fill" style="width: ${p.attempts > 0 ? p.accuracy_rate : 0}%; background: ${rateColor};"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+              <span>Dominadas: ${p.mastered_exercises}/${p.total_exercises}</span>
+              <span>${p.attempts} tentativas</span>
+            </div>
+          `;
+          patBars.appendChild(card);
+        });
+      }
+
+      // 3. Tabela Analítica por Exercício
+      const exBody = document.getElementById('reports-exercises-table-body');
+      exBody.innerHTML = '';
+      if (!data.exercise_report || data.exercise_report.length === 0) {
+        exBody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum exercício encontrado com os filtros aplicados.</td></tr>';
+      } else {
+        data.exercise_report.forEach(ex => {
+          const tr = document.createElement('tr');
+          const patternsList = Array.isArray(ex.patterns) ? ex.patterns : [];
+          const patternsHtml = patternsList.map(p => `<span class="tag tag-pattern" style="font-size: 0.7rem;">${p}</span>`).join('');
+          const totAtt = safeNum(ex.total_attempts);
+          const accRate = safeNum(ex.accuracy_rate !== undefined ? ex.accuracy_rate : ex.success_rate);
+          const autoRate = safeNum(ex.autonomy_rate !== undefined ? ex.autonomy_rate : (ex.alone_rate !== undefined ? ex.alone_rate : (totAtt > 0 ? (safeNum(ex.alone_attempts) / totAtt * 100) : 0)));
+          const bestFormatted = safeStr(ex.best_duration_formatted || ex.best_time_formatted, formatTime(ex.best_time_seconds));
+          const avgFormatted = safeStr(ex.avg_duration_formatted, formatTime(ex.avg_duration_seconds));
+
+          let statusBadge = '<span class="status-badge status-unattempted">⚪ Não Iniciado</span>';
+          if (totAtt > 0) {
+            if (ex.is_mastered || ex.mastery_status === 'mastered') {
+              statusBadge = '<span class="status-badge status-success" title="Dominado: Aprovado sem consulta e última recente OK">🌟 Dominado</span>';
+            } else if (safeNum(ex.successful_attempts) > 0 || safeNum(ex.success_attempts) > 0 || ex.mastery_status === 'training') {
+              statusBadge = '<span class="status-badge status-warning" title="Em Treinamento: Aprovado com consulta ou falha recente">🟡 Em Treino</span>';
+            } else {
+              statusBadge = '<span class="status-badge status-fail" title="Falhando: Nenhuma aprovação ainda">🔴 Falhando</span>';
+            }
+          }
+
+          const accColor = accRate >= 80 ? 'var(--accent-green)' : (accRate >= 50 ? 'var(--accent-amber)' : (totAtt === 0 ? 'var(--text-muted)' : 'var(--accent-red)'));
+          const autoColor = autoRate >= 80 ? 'var(--accent-green)' : (autoRate >= 50 ? 'var(--accent-amber)' : 'var(--text-muted)');
+          const autoRateStr = totAtt > 0 ? `<span style="color: ${autoColor}; font-weight: 600;">${autoRate.toFixed(1)}%</span>` : '-';
+          const stuckStr = ex.last_stuck_point ? `<span style="color: var(--accent-amber); font-weight: 500;">${safeStr(ex.last_stuck_point)}</span>` : (ex.last_error_reason ? `<span style="color: var(--accent-red); font-weight: 500;">${safeStr(ex.last_error_reason)}</span>` : '-');
+
+          tr.innerHTML = `
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+                <strong style="cursor: pointer; color: var(--text-main);" onclick="inspectExercise('${safeStr(ex.id)}')">${safeStr(ex.id)}</strong>
+                ${statusBadge}
+              </div>
+            </td>
+            <td><span class="badge-rank">Level ${safeNum(ex.level)}</span></td>
+            <td>${patternsHtml}</td>
+            <td><strong>${totAtt}</strong></td>
+            <td><strong style="color: ${accColor};">${totAtt > 0 ? accRate.toFixed(1) + '%' : '-'}</strong></td>
+            <td>${autoRateStr}</td>
+            <td style="color: var(--accent-green); font-family: var(--font-mono); font-weight: 600;">${bestFormatted}</td>
+            <td style="font-family: var(--font-mono);">${avgFormatted}</td>
+            <td>${stuckStr}</td>
+            <td>
+              <div style="display: flex; gap: 0.35rem; align-items: center;">
+                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="inspectExercise('${safeStr(ex.id)}')">
+                  🔍 Detalhes
+                </button>
+                <button class="btn btn-sm" style="padding: 0.2rem 0.45rem; font-size: 0.72rem; color: var(--accent-cyan); border-color: rgba(6,182,212,0.3);" onclick="addToActiveQueue('${safeStr(ex.id)}')" title="Adicionar à Fila Customizada">
+                  + Fila
+                </button>
+              </div>
+            </td>
+          `;
+          exBody.appendChild(tr);
+        });
+      }
+
+      // 4. Relatório Temporal Consolidado
+      const dailyBody = document.getElementById('reports-daily-table-body');
+      dailyBody.innerHTML = '';
+      if (!data.daily_report || data.daily_report.length === 0) {
+        dailyBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhuma atividade no período filtrado.</td></tr>';
+      } else {
+        data.daily_report.forEach(d => {
+          const tr = document.createElement('tr');
+          const totAtt = safeNum(d.total_attempts);
+          const succAtt = safeNum(d.successful_attempts !== undefined ? d.successful_attempts : d.success_attempts);
+          const failAtt = safeNum(d.failed_attempts !== undefined ? d.failed_attempts : d.fail_attempts);
+          const accRate = safeNum(d.accuracy_rate !== undefined ? d.accuracy_rate : d.success_rate);
+          const autoRate = safeNum(d.alone_rate !== undefined ? d.alone_rate : d.autonomy_rate);
+          const aloneCnt = safeNum(d.alone_count !== undefined ? d.alone_count : d.alone_attempts);
+          const avgDur = safeStr(d.avg_duration_formatted, formatTime(d.avg_duration_seconds));
+          const accColor = accRate >= 80 ? 'var(--accent-green)' : (accRate >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)');
+          
+          let exsList = d.distinct_exercises || d.exercises_done || [];
+          if (!Array.isArray(exsList)) exsList = [];
+          const exsStr = exsList.length > 0 ? exsList.join(', ') : '-';
+
+          tr.innerHTML = `
+            <td style="font-family: var(--font-mono); font-weight: 600;">${safeStr(d.date)}</td>
+            <td>${totAtt}</td>
+            <td><span style="color: var(--accent-green); font-weight: 600;">${succAtt}</span></td>
+            <td><span style="color: var(--accent-red);">${failAtt}</span></td>
+            <td><strong style="color: ${accColor};">${accRate.toFixed(1)}%</strong></td>
+            <td><strong>${autoRate.toFixed(1)}%</strong> (${aloneCnt})</td>
+            <td>${avgDur}</td>
+            <td style="font-size: 0.8rem; color: var(--text-muted); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${exsStr}">${exsStr}</td>
+          `;
+          dailyBody.appendChild(tr);
+        });
+      }
+    }
+
+    function applyPresetPeriod(preset) {
+      activePreset = preset;
+      document.querySelectorAll('.pill-btn').forEach(btn => btn.classList.remove('active'));
+      if (event && event.target && event.target.classList.contains('pill-btn')) {
+        event.target.classList.add('active');
+      }
+
+      const today = new Date();
+      const formatYMD = d => d.toISOString().split('T')[0];
+
+      const startInput = document.getElementById('timeline-start-date');
+      const endInput = document.getElementById('timeline-end-date');
+
+      if (preset === 'today') {
+        startInput.value = formatYMD(today);
+        endInput.value = formatYMD(today);
+      } else if (preset === '7d') {
+        const d = new Date();
+        d.setDate(d.getDate() - 6);
+        startInput.value = formatYMD(d);
+        endInput.value = formatYMD(today);
+      } else if (preset === '30d') {
+        const d = new Date();
+        d.setDate(d.getDate() - 29);
+        startInput.value = formatYMD(d);
+        endInput.value = formatYMD(today);
+      } else if (preset === 'all') {
+        startInput.value = '';
+        endInput.value = '';
+        document.getElementById('pill-all').classList.add('active');
+      }
+
+      fetchTimeline();
+    }
+
+    function onCustomDateChange() {
+      document.querySelectorAll('.pill-btn').forEach(btn => btn.classList.remove('active'));
+      activePreset = 'custom';
+    }
+
+    async function fetchTimeline() {
+      try {
+        const startDate = document.getElementById('timeline-start-date').value;
+        const endDate = document.getElementById('timeline-end-date').value;
+
+        let query = '';
+        const params = [];
+        if (startDate) params.push(`start_date=${encodeURIComponent(startDate)}`);
+        if (endDate) params.push(`end_date=${encodeURIComponent(endDate)}`);
+        if (params.length > 0) query = '?' + params.join('&');
+
+        const res = await fetch(`/api/stats/timeline${query}`);
+        const data = await res.json();
+        timelineData = data.timeline || [];
+
+        updateTimelineKpis(timelineData);
+        renderTimelineChart(timelineData);
+
+        // Auto-select latest active day if available and none selected
+        if (timelineData.length > 0) {
+          const targetDay = selectedTimelineDate || timelineData[timelineData.length - 1].date;
+          selectTimelineDay(targetDay);
+        } else {
+          clearDayInspection();
+        }
+      } catch (err) {
+        console.error("Erro ao carregar dados temporais:", err);
+      }
+    }
+
+    function updateTimelineKpis(timeline) {
+      const activeDays = timeline.length;
+      const totalAttempts = timeline.reduce((acc, cur) => acc + cur.total_attempts, 0);
+      const succAttempts = timeline.reduce((acc, cur) => acc + cur.successful_attempts, 0);
+      const failAttempts = timeline.reduce((acc, cur) => acc + cur.failed_attempts, 0);
+      const overallRate = totalAttempts > 0 ? ((succAttempts / totalAttempts) * 100).toFixed(1) : '0.0';
+
+      let totalDurationSec = 0;
+      let durationWeight = 0;
+      timeline.forEach(t => {
+        if (t.avg_duration_seconds > 0) {
+          totalDurationSec += t.avg_duration_seconds * t.total_attempts;
+          durationWeight += t.total_attempts;
+        }
+      });
+      const avgPeriodSec = durationWeight > 0 ? (totalDurationSec / durationWeight) : 0;
+      const m = Math.floor(avgPeriodSec / 60);
+      const s = Math.round(avgPeriodSec % 60);
+      const avgFormatted = durationWeight > 0 ? `${m}m ${s < 10 ? '0' : ''}${s}s` : '--:--';
+
+      document.getElementById('timeline-kpi-active-days').innerText = activeDays;
+      document.getElementById('timeline-kpi-total-attempts').innerText = totalAttempts;
+      document.getElementById('timeline-kpi-success-count').innerText = succAttempts;
+      document.getElementById('timeline-kpi-fail-count').innerText = failAttempts;
+      document.getElementById('timeline-kpi-accuracy').innerText = overallRate + '%';
+      document.getElementById('timeline-kpi-avg-time').innerText = avgFormatted;
+    }
+
+    function renderTimelineChart(timeline) {
+      const container = document.getElementById('timeline-bars-container');
+      container.innerHTML = '';
+
+      if (!timeline || timeline.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 2rem; width: 100%; text-align: center;">Nenhuma atividade registrada no período selecionado.</div>';
+        return;
+      }
+
+      const maxAttempts = Math.max(...timeline.map(t => t.total_attempts), 1);
+
+      timeline.forEach(item => {
+        const col = document.createElement('div');
+        col.className = `timeline-bar-column ${selectedTimelineDate === item.date ? 'selected' : ''}`;
+        col.onclick = () => selectTimelineDay(item.date);
+
+        const totalHeightPct = Math.max(15, (item.total_attempts / maxAttempts) * 100);
+        const succPct = item.total_attempts > 0 ? (item.successful_attempts / item.total_attempts) * 100 : 0;
+        const failPct = item.total_attempts > 0 ? (item.failed_attempts / item.total_attempts) * 100 : 0;
+
+        // Date format: MM-DD
+        const dateParts = item.date.split('-');
+        const shortDate = dateParts.length === 3 ? `${dateParts[1]}/${dateParts[2]}` : item.date;
+
+        col.innerHTML = `
+          <span class="timeline-bar-count">${item.total_attempts}</span>
+          <div class="timeline-bar-stack" style="height: ${Math.round(totalHeightPct)}px;">
+            <div class="bar-segment-success" style="height: ${succPct}%;"></div>
+            <div class="bar-segment-fail" style="height: ${failPct}%;"></div>
+          </div>
+          <span class="timeline-bar-date">${shortDate}</span>
+        `;
+        container.appendChild(col);
+      });
+    }
+
+    async function selectTimelineDay(dateStr) {
+      selectedTimelineDate = dateStr;
+
+      // Update UI column highlight
+      document.querySelectorAll('.timeline-bar-column').forEach(col => {
+        col.classList.remove('selected');
+      });
+      const selectedIndex = timelineData.findIndex(t => t.date === dateStr);
+      const cols = document.querySelectorAll('.timeline-bar-column');
+      if (selectedIndex >= 0 && cols[selectedIndex]) {
+        cols[selectedIndex].classList.add('selected');
+      }
+
+      // Fetch specific details
+      try {
+        const res = await fetch(`/api/stats/day-details?date=${encodeURIComponent(dateStr)}`);
+        const dayDetails = await res.json();
+        renderDayDetails(dayDetails);
+      } catch (err) {
+        console.error("Erro ao carregar detalhes do dia:", err);
+      }
+    }
+
+    function renderDayDetails(details) {
+      document.getElementById('selected-day-label').innerText = `📅 Dia ${details.date}`;
+      document.getElementById('selected-day-stats-summary').innerText = 
+        `${details.total_attempts} submissões | ${details.successful_attempts} aprovadas (${details.success_rate}%) | ${details.failed_attempts} falhas`;
+
+      // Render pattern breakdown chips
+      const chipsContainer = document.getElementById('selected-day-patterns-chips');
+      chipsContainer.innerHTML = '';
+      if (details.patterns_breakdown && details.patterns_breakdown.length > 0) {
+        details.patterns_breakdown.forEach(p => {
+          const chip = document.createElement('span');
+          chip.className = 'tag tag-pattern';
+          chip.style.fontSize = '0.75rem';
+          chip.innerText = `${p.pattern}: ${p.count} (${p.rate}%)`;
+          chipsContainer.appendChild(chip);
+        });
+      }
+
+      // Render attempts table
+      const tbody = document.getElementById('day-attempts-table-body');
+      tbody.innerHTML = '';
+
+      if (!details.attempts || details.attempts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Nenhuma submissão registrada nesta data.</td></tr>';
+        return;
+      }
+
+      details.attempts.forEach(a => {
+        const tr = document.createElement('tr');
+        const statusBadge = a.success 
+          ? '<span class="status-badge status-success">Aprovado</span>' 
+          : '<span class="status-badge status-fail">Falhou</span>';
+
+        const patternsHtml = a.patterns.map(p => `<span class="tag tag-pattern">${p}</span>`).join('');
+        const reasonBadge = a.error_reason 
+          ? `<span class="tag" style="color: ${a.success ? 'var(--accent-green)' : 'var(--accent-red)'}">${a.error_reason}</span>` 
+          : '-';
+
+        tr.innerHTML = `
+          <td style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.8rem;">${a.time || '--:--'}</td>
+          <td><strong>${a.exercise_id}</strong></td>
+          <td><span class="badge-rank">Level ${a.level !== null ? a.level : 0}</span></td>
+          <td>${patternsHtml}</td>
+          <td>${a.duration_formatted}</td>
+          <td>${statusBadge}</td>
+          <td>${reasonBadge}</td>
+          <td>
+            <button class="btn btn-primary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" onclick="openAttemptModal(${a.id})">
+              Ver Código & IA
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function clearDayInspection() {
+      document.getElementById('selected-day-label').innerText = 'Nenhuma atividade no período';
+      document.getElementById('selected-day-stats-summary').innerText = '';
+      document.getElementById('selected-day-patterns-chips').innerHTML = '';
+      document.getElementById('day-attempts-table-body').innerHTML = 
+        '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum exercício executado nesta faixa de datas.</td></tr>';
+    }
+
+    // Auto-polling silently every 3 seconds
+    setInterval(async () => {
+      try {
+        const res = await fetch('/api/latest');
+        const data = await res.json();
+        if (data.latest_attempt_id && data.latest_attempt_id !== lastKnownAttemptId) {
+          lastKnownAttemptId = data.latest_attempt_id;
+          fetchStats();
+          if (currentTab === 'temporal') {
+            fetchTimeline();
+          }
+        }
+      } catch (e) {
+        // silent catch
+      }
+    }, 3000);
+
+    // =========================================================================
+    // Custom Drill Queue State & Methods
+    // =========================================================================
+    let activeQueue = [];
+    let queueLevelFilter = 'all';
+    let savedQueuesList = [];
+
+    function initCustomQueueTab() {
+      fetchSavedQueuesCount();
+      renderQueueCatalog();
+      renderActiveQueue();
+    }
+
+    async function fetchSavedQueuesCount() {
+      try {
+        const res = await fetch('/api/custom-queue');
+        const data = await res.json();
+        savedQueuesList = data.queues || [];
+        const badge = document.getElementById('saved-queues-count');
+        if (badge) badge.innerText = savedQueuesList.length;
+      } catch (e) {
+        console.error("Falha ao carregar filas salvas:", e);
+      }
+    }
+
+    function setQueueLevelFilter(lvl) {
+      queueLevelFilter = lvl;
+      document.querySelectorAll('#tab-content-custom-queue .filter-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`queue-filter-lvl-${lvl}`);
+      if (activeBtn) activeBtn.classList.add('active');
+      renderQueueCatalog();
+    }
+
+    function renderQueueCatalog() {
+      const container = document.getElementById('queue-catalog-container');
+      if (!container || !currentStats || !currentStats.exercises) return;
+      container.innerHTML = '';
+
+      const query = (document.getElementById('queue-search-input')?.value || '').toLowerCase().trim();
+
+      const filtered = currentStats.exercises.filter(ex => {
+        if (queueLevelFilter !== 'all' && ex.level !== parseInt(queueLevelFilter)) return false;
+        if (query && !ex.id.toLowerCase().includes(query) && !ex.patterns.some(p => p.toLowerCase().includes(query))) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">Nenhum exercício encontrado com os filtros atuais.</div>';
+        return;
+      }
+
+      filtered.forEach(ex => {
+        const item = document.createElement('div');
+        item.className = 'queue-catalog-item';
+
+        const patternsStr = ex.patterns.slice(0, 2).map(p => `<span class="tag tag-pattern" style="font-size: 0.7rem;">${p}</span>`).join('');
+        const statusIcon = ex.is_mastered ? '🌟' : (ex.successful_attempts > 0 ? '🟡' : (ex.total_attempts > 0 ? '🔴' : '⚪'));
+
+        item.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <span title="Status">${statusIcon}</span>
+            <div>
+              <div style="font-weight: 700; font-size: 0.88rem; color: #fff;">${ex.id}</div>
+              <div style="display: flex; gap: 0.35rem; align-items: center; margin-top: 0.2rem;">
+                <span class="badge-rank" style="font-size: 0.68rem; padding: 0.1rem 0.35rem;">L${ex.level}</span>
+                ${patternsStr}
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm" onclick="addToActiveQueue('${ex.id}')" style="color: var(--accent-cyan); border-color: rgba(6,182,212,0.4); font-size: 0.75rem;">
+            + Adicionar
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function showQueueToast(msg) {
+      let toast = document.getElementById('queue-toast-notice');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'queue-toast-notice';
+        toast.style.cssText = 'position: fixed; bottom: 24px; right: 24px; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-cyan); color: #38bdf8; padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(6,182,212,0.25); z-index: 9999; display: flex; align-items: center; gap: 0.6rem; transition: all 0.3s ease; transform: translateY(100px); opacity: 0;';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<span>🎯</span> <span>${msg}</span>`;
+      toast.style.transform = 'translateY(0)';
+      toast.style.opacity = '1';
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.style.transform = 'translateY(100px)';
+        toast.style.opacity = '0';
+      }, 2500);
+    }
+
+    function addToActiveQueue(exerciseId) {
+      if (!currentStats || !currentStats.exercises) return;
+      const ex = currentStats.exercises.find(e => e.id === exerciseId);
+      if (!ex) return;
+      activeQueue.push({
+        id: ex.id,
+        level: ex.level,
+        patterns: ex.patterns
+      });
+      renderActiveQueue();
+      showQueueToast(`<strong>${ex.id}</strong> adicionado à Fila de Treino (#${activeQueue.length})`);
+    }
+
+    function removeFromActiveQueue(index) {
+      if (index >= 0 && index < activeQueue.length) {
+        const removed = activeQueue.splice(index, 1)[0];
+        renderActiveQueue();
+        if (removed) showQueueToast(`<strong>${removed.id}</strong> removido da Fila`);
+      }
+    }
+
+    function moveQueueItem(index, direction) {
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= activeQueue.length) return;
+      const item = activeQueue.splice(index, 1)[0];
+      activeQueue.splice(newIndex, 0, item);
+      renderActiveQueue();
+    }
+
+    function clearActiveQueue() {
+      if (activeQueue.length === 0) return;
+      if (confirm("Deseja realmente limpar toda a fila ativa?")) {
+        activeQueue = [];
+        renderActiveQueue();
+        showQueueToast('Fila de Treino limpa');
+      }
+    }
+
+    function renderActiveQueue() {
+      const container = document.getElementById('queue-active-container');
+      const counter = document.getElementById('queue-counter');
+      const badge = document.getElementById('queue-length-badge');
+      const tabBadge = document.getElementById('tab-queue-badge');
+
+      if (counter) counter.innerText = activeQueue.length;
+      if (badge) badge.innerText = `${activeQueue.length} ${activeQueue.length === 1 ? 'exercício' : 'exercícios'}`;
+      if (tabBadge) {
+        tabBadge.innerText = activeQueue.length;
+        tabBadge.style.display = activeQueue.length > 0 ? 'inline-block' : 'none';
+      }
+
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (activeQueue.length === 0) {
+        container.innerHTML = `
+          <div style="border: 2px dashed rgba(255,255,255,0.08); border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+            <div style="font-weight: 600; color: #e2e8f0;">Sua fila de treino está vazia</div>
+            <div style="font-size: 0.8rem; margin-top: 0.35rem;">
+              Clique em <strong>+ Adicionar</strong> nos exercícios do catálogo ao lado para montar sua sequência de estudos.
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      activeQueue.forEach((item, idx) => {
+        const el = document.createElement('div');
+        el.className = 'queue-active-item';
+        const isFirst = idx === 0;
+        const isLast = idx === activeQueue.length - 1;
+
+        el.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="queue-item-order">${idx + 1}</div>
+            <div>
+              <div style="font-weight: 700; font-size: 0.92rem; color: #fff;">${item.id}</div>
+              <div style="display: flex; gap: 0.35rem; align-items: center; margin-top: 0.15rem;">
+                <span class="badge-rank" style="font-size: 0.68rem; padding: 0.1rem 0.35rem;">Level ${item.level}</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">${(item.patterns || []).slice(0, 2).join(', ')}</span>
+              </div>
+            </div>
+          </div>
+          <div class="queue-btn-group">
+            <button class="queue-control-btn" onclick="moveQueueItem(${idx}, -1)" ${isFirst ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''} title="Mover para cima">▲</button>
+            <button class="queue-control-btn" onclick="moveQueueItem(${idx}, 1)" ${isLast ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''} title="Mover para baixo">▼</button>
+            <button class="queue-control-btn remove" onclick="removeFromActiveQueue(${idx})" title="Remover da fila">✕</button>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    async function saveCustomQueuePrompt() {
+      if (activeQueue.length === 0) {
+        alert("Adicione pelo menos um exercício na fila antes de salvar.");
+        return;
+      }
+      const name = prompt("Nome da Fila Customizada:", `Treino Rank02 - ${activeQueue.length} itens`);
+      if (!name) return;
+
+      const desc = prompt("Descrição / Objetivo (opcional):", "Sequência focada para treino do exame 42");
+
+      try {
+        const res = await fetch('/api/custom-queue', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            name: name.trim(),
+            description: desc ? desc.trim() : '',
+            exercises: activeQueue.map(x => x.id)
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(`✅ Fila '${name}' salva com sucesso no banco!`);
+          fetchSavedQueuesCount();
+        } else {
+          alert(`Erro ao salvar fila: ${data.error || 'Falha na requisição'}`);
+        }
+      } catch (err) {
+        alert("Erro de conexão ao salvar a fila.");
+      }
+    }
+
+    function exportCustomQueueFile() {
+      if (activeQueue.length === 0) {
+        alert("A fila está vazia. Adicione exercícios antes de exportar.");
+        return;
+      }
+      const exportData = {
+        name: "Custom Drill Queue",
+        created_at: new Date().toISOString(),
+        items: activeQueue.map(x => x.id),
+        exercises: activeQueue.map(x => x.id)
+      };
+      const jsonStr = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonStr], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'custom_queue.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function showSavedQueuesModal() {
+      const modal = document.getElementById('saved-queues-modal');
+      const container = document.getElementById('saved-queues-list-container');
+      if (!modal || !container) return;
+
+      container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 1.5rem;">Carregando filas...</div>';
+      modal.style.display = 'flex';
+
+      try {
+        const res = await fetch('/api/custom-queue');
+        const data = await res.json();
+        const queues = data.queues || [];
+
+        if (queues.length === 0) {
+          container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 2rem;">Nenhuma fila customizada salva no banco de dados.</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        queues.forEach(q => {
+          const item = document.createElement('div');
+          item.style.background = 'rgba(255,255,255,0.03)';
+          item.style.border = '1px solid rgba(255,255,255,0.08)';
+          item.style.borderRadius = '10px';
+          item.style.padding = '1rem 1.25rem';
+          item.style.display = 'flex';
+          item.style.justifyContent = 'space-between';
+          item.style.alignItems = 'center';
+          item.style.gap = '1rem';
+
+          const exercisesList = (q.exercises || q.items || []).join(', ');
+
+          item.innerHTML = `
+            <div>
+              <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">${q.name}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+                ${q.count} exercícios • Criada em: ${q.created_at}
+              </div>
+              <div style="font-size: 0.75rem; color: var(--accent-cyan); font-family: var(--font-mono); margin-top: 0.35rem; max-width: 450px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ${exercisesList}
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button class="btn btn-sm btn-primary" onclick="loadSavedQueue(${q.id})">
+                Carregar 📥
+              </button>
+              <button class="btn btn-sm" style="color: var(--accent-red); border-color: rgba(239,68,68,0.3);" onclick="deleteSavedQueue(${q.id})">
+                Excluir 🗑️
+              </button>
+            </div>
+          `;
+          container.appendChild(item);
+        });
+      } catch (err) {
+        container.innerHTML = '<div style="color: var(--accent-red); text-align: center;">Erro ao buscar filas salvas.</div>';
+      }
+    }
+
+    function closeSavedQueuesModal() {
+      const modal = document.getElementById('saved-queues-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function loadSavedQueue(queueId) {
+      try {
+        const res = await fetch(`/api/custom-queue/${queueId}`);
+        if (!res.ok) throw new Error("Fila não encontrada");
+        const q = await res.json();
+        const exNames = q.exercises || q.items || [];
+        if (!currentStats || !currentStats.exercises) return;
+
+        activeQueue = [];
+        exNames.forEach(name => {
+          const found = currentStats.exercises.find(e => e.id === name);
+          if (found) {
+            activeQueue.push({id: found.id, level: found.level, patterns: found.patterns});
+          } else {
+            activeQueue.push({id: name, level: 0, patterns: ['C Standard']});
+          }
+        });
+
+        renderActiveQueue();
+        closeSavedQueuesModal();
+        alert(`Fila '${q.name}' carregada com ${activeQueue.length} exercícios!`);
+      } catch (err) {
+        alert("Erro ao carregar a fila selecionada.");
+      }
+    }
+
+    async function deleteSavedQueue(queueId) {
+      if (!confirm(`Deseja realmente excluir a fila #${queueId}?`)) return;
+      try {
+        const res = await fetch(`/api/custom-queue/${queueId}`, {method: 'DELETE'});
+        if (res.ok) {
+          fetchSavedQueuesCount();
+          showSavedQueuesModal();
+        } else {
+          alert("Erro ao excluir fila.");
+        }
+      } catch (err) {
+        alert("Falha de rede ao excluir fila.");
+      }
+    }
+
+    // =========================================================================
+    // AI Strategy Coach State & Methods
+    // =========================================================================
+    let strategyHistory = [];
+
+    function openCoachChatModal() {
+      const modal = document.getElementById('coach-chat-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        renderStrategyChat();
+        setTimeout(() => {
+          const input = document.getElementById('strategy-user-input');
+          if (input) input.focus();
+        }, 100);
+      }
+    }
+
+    function closeCoachChatModal() {
+      const modal = document.getElementById('coach-chat-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function initAICoachTab() {
+      await fetchStrategyContext();
+      await fetchStrategyHistory();
+    }
+
+    async function fetchStrategyContext() {
+      try {
+        const res = await fetch('/api/ai-strategy/context');
+        const ctx = await res.json();
+
+        const masteredEl = document.getElementById('coach-kpi-mastered');
+        if (masteredEl) masteredEl.innerText = ctx.mastered_count || 0;
+
+        const trainingEl = document.getElementById('coach-kpi-training');
+        if (trainingEl) trainingEl.innerText = ctx.training_count || 0;
+
+        const critEl = document.getElementById('coach-kpi-critical');
+        if (critEl) critEl.innerText = (ctx.critical_patterns || []).length;
+
+        const stuckEl = document.getElementById('coach-kpi-stuck');
+        if (stuckEl) {
+          if (ctx.top_stuck_points && ctx.top_stuck_points.length > 0) {
+            stuckEl.innerText = `${ctx.top_stuck_points[0][0]} (${ctx.top_stuck_points[0][1]}x)`;
+            stuckEl.title = ctx.top_stuck_points[0][0];
+          } else {
+            stuckEl.innerText = 'Nenhum';
+          }
+        }
+
+        renderCoachSummaries(ctx);
+      } catch (e) {
+        console.error("Erro ao carregar contexto de estratégia:", e);
+      }
+    }
+
+    function renderCoachSummaries(ctx) {
+      // 1. Recomendações Táticas Resumidas
+      const recContainer = document.getElementById('coach-summary-recommendations');
+      if (recContainer) {
+        recContainer.innerHTML = '';
+        const pct = safeNum(ctx.completion_percentage);
+        const accuracy = safeNum(ctx.global_accuracy_rate);
+        const critList = ctx.critical_patterns || [];
+        const topStuck = ctx.top_stuck_points || [];
+
+        let statusText = '';
+        if (pct >= 80 && accuracy >= 80) {
+          statusText = '🔥 <strong>Nível Excelente:</strong> Você possui alta taxa de retenção e está pronto para pontuar 100/100 no exame!';
+        } else if (pct >= 40) {
+          statusText = '⚡ <strong>Em Boa Evolução:</strong> Seus padrões básicos estão consolidados, foque em eliminar os bloqueios recorrentes.';
+        } else {
+          statusText = '🌱 <strong>Início da Jornada:</strong> Pratique a repetição deliberada e memorize os esqueletos de main e loops dos Níveis 0 e 1.';
+        }
+
+        const box1 = document.createElement('div');
+        box1.style.cssText = 'background: rgba(6, 182, 212, 0.06); border-left: 3px solid var(--accent-cyan); padding: 0.85rem 1.1rem; border-radius: 8px;';
+        box1.innerHTML = `<div style="color: #e2e8f0; font-size: 0.9rem;">${statusText}</div>`;
+        recContainer.appendChild(box1);
+
+        if (critList.length > 0) {
+          const critDiv = document.createElement('div');
+          critDiv.style.cssText = 'background: rgba(239, 68, 68, 0.06); border-left: 3px solid var(--accent-red); padding: 0.85rem 1.1rem; border-radius: 8px;';
+          const patNames = critList.map(p => `<strong>${p.pattern}</strong> (${p.accuracy_rate}% acerto)`).join(', ');
+          critDiv.innerHTML = `
+            <div style="color: #fca5a5; font-weight: 700; margin-bottom: 0.25rem;">⚠️ Padrões que exigem treino imediato:</div>
+            <div style="color: #cbd5e1; font-size: 0.85rem;">${patNames}</div>
+          `;
+          recContainer.appendChild(critDiv);
+        }
+
+        if (topStuck.length > 0) {
+          const stuckDiv = document.createElement('div');
+          stuckDiv.style.cssText = 'background: rgba(245, 158, 11, 0.06); border-left: 3px solid var(--accent-amber); padding: 0.85rem 1.1rem; border-radius: 8px;';
+          const itemsStr = topStuck.map(s => `<span class="tag" style="color: var(--accent-amber);">${s[0]} (${s[1]}x)</span>`).join(' ');
+          stuckDiv.innerHTML = `
+            <div style="color: #fcd34d; font-weight: 700; margin-bottom: 0.35rem;">🧗 Principais Gargalos Notificados:</div>
+            <div>${itemsStr}</div>
+          `;
+          recContainer.appendChild(stuckDiv);
+        }
+      }
+
+      // 2. Roteiro Tático por Nível
+      const roadmapContainer = document.getElementById('coach-level-roadmap');
+      if (roadmapContainer && ctx.level_report) {
+        roadmapContainer.innerHTML = '';
+        ctx.level_report.forEach(lvl => {
+          const item = document.createElement('div');
+          item.style.cssText = 'background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;';
+          
+          const masteredLvl = lvl.mastered_exercises || 0;
+          const totalLvl = lvl.total_exercises || 0;
+          const pctLvl = totalLvl > 0 ? Math.round(masteredLvl / totalLvl * 100) : 0;
+          const lvlColor = pctLvl >= 80 ? 'var(--accent-green)' : (pctLvl >= 50 ? 'var(--accent-amber)' : 'var(--text-muted)');
+
+          item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+              <span class="badge-rank" style="font-size: 0.76rem;">Level ${lvl.level}</span>
+              <span style="font-weight: 600; font-size: 0.88rem; color: #fff;">${masteredLvl} / ${totalLvl} Dominados</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-family: var(--font-mono); font-weight: 700; color: ${lvlColor};">${pctLvl}%</span>
+              <button class="btn btn-sm" onclick="setFilterLevel(${lvl.level}); switchTab('overview');" style="font-size: 0.72rem; padding: 0.2rem 0.6rem;">
+                Treinar Nível
+              </button>
+            </div>
+          `;
+          roadmapContainer.appendChild(item);
+        });
+      }
+    }
+
+    async function fetchStrategyHistory() {
+      try {
+        const res = await fetch('/api/ai-strategy/history');
+        const data = await res.json();
+        strategyHistory = data.messages || [];
+      } catch (e) {
+        console.error("Erro ao carregar histórico do coach:", e);
+      }
+    }
+
+    function renderStrategyChat() {
+      const container = document.getElementById('strategy-chat-messages');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (strategyHistory.length === 0) {
+        container.innerHTML = `
+          <div class="strategy-msg assistant">
+            <div class="strategy-msg-header">🤖 Coach Estratégico 42</div>
+            <p>Olá, cadete! Estou conectado ao seu banco de dados de desempenho do <strong>Rank 02</strong>.</p>
+            <p>Tenho memória persistente sobre seus exercícios, pontos onde você travou e o grau de autonomia.</p>
+            <p>Faça uma pergunta abaixo para traçarmos uma estratégia de estudos cirúrgica!</p>
+          </div>
+        `;
+        return;
+      }
+
+      strategyHistory.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = `strategy-msg ${msg.role}`;
+        const sender = msg.role === 'assistant' ? '🤖 Coach Estratégico 42' : '👤 Você';
+
+        div.innerHTML = `
+          <div class="strategy-msg-header">${sender}</div>
+          <div>${renderMarkdown(msg.message)}</div>
+        `;
+        container.appendChild(div);
+      });
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendStrategyQuestion() {
+      const input = document.getElementById('strategy-user-input');
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
+
+      input.value = '';
+      const btn = document.getElementById('btn-send-strategy');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Enviando...';
+      }
+
+      strategyHistory.push({role: 'user', message: text});
+      renderStrategyChat();
+
+      try {
+        const res = await fetch('/api/ai-strategy', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({user_message: text})
+        });
+        const data = await res.json();
+        strategyHistory = data.messages || [];
+        renderStrategyChat();
+        fetchStrategyContext();
+      } catch (err) {
+        alert("Erro ao enviar pergunta para o Coach.");
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'Enviar 💬';
+        }
+      }
+    }
+
+    async function clearAIStrategyHistory() {
+      if (!confirm("Deseja realmente limpar o histórico da conversa com o Coach?")) return;
+      try {
+        const res = await fetch('/api/ai-strategy/clear', {method: 'POST'});
+        if (res.ok) {
+          strategyHistory = [];
+          renderStrategyChat();
+        }
+      } catch (err) {
+        alert("Erro ao limpar histórico.");
+      }
+    }
+
+    // Initial load
+    fetchStats();
+  </script>
+</body>
+</html>

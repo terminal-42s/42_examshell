@@ -59,6 +59,37 @@ shuffle_array() {
     shuffled=("${qsub[@]}")
 }
 
+ask_self_assessment() {
+    local is_success=$1
+    echo
+    echo -e "${MAGENTA}${BOLD}🧠 AUTOAVALIAÇÃO REFLEXIVA & MEMÓRIA MUSCULAR${RESET}"
+    echo -e "${CYAN}Como foi sua autonomia nesta tentativa?${RESET}"
+    echo -e "  [1] 🦾 100% Sozinho (Sem consulta)"
+    echo -e "  [2] 🔍 Precisei pesquisar / consultar material"
+    echo -e "  [Pressione Enter para pular]"
+    read -rp "Sua escolha (1/2): " indep_choice
+
+    local independence=""
+    if [ "$indep_choice" = "1" ]; then
+        independence="alone"
+    elif [ "$indep_choice" = "2" ]; then
+        independence="searched"
+    fi
+
+    local stuck_point=""
+    if [ "$is_success" -eq 0 ] || [ "$independence" = "searched" ]; then
+        echo -e "${YELLOW}Qual foi o ponto principal de bloqueio ou dúvida? (Ex: Malloc/Free, Off-by-one, ASCII wrap, Segfault, Lógica do loop)${RESET}"
+        read -rp "Bloqueio [Enter para pular]: " stuck_point
+    fi
+
+    echo -e "${BLUE}Alguma reflexão, anotação ou insight pessoal?${RESET}"
+    read -rp "Notas [Enter para pular]: " user_notes
+
+    SELF_INDEP="$independence"
+    SELF_STUCK="$stuck_point"
+    SELF_NOTES="$user_notes"
+}
+
 shuffle_array
 num=${#shuffled[@]}
 i=0
@@ -99,6 +130,7 @@ else
     touch "$base_dir/../../rendu/${shuffled[$i]}/${shuffled[$i]}.c"
 fi
 
+    START_TIME=$(date +%s)
     subject=$(cat sub.txt)
 
     # Check if all questions are completed
@@ -128,7 +160,7 @@ fi
                 ;;
             test)
                 clear
-                ./tester.sh &
+                ./tester.sh > tester_output.log 2>&1 &
                 pid=$!
                 slept=0
 
@@ -137,11 +169,44 @@ fi
                     slept=$((slept+1))
                 done
 
+                DURATION=$(( $(date +%s) - START_TIME ))
+
                 if kill -0 $pid 2>/dev/null; then
                     echo "$(tput setaf 1)$(tput bold)TIMEOUT$(tput sgr 0)"
                     echo "It can be because of infinite loop ∞"
                     echo "Please check your code or just try again."
                     kill $pid 2>/dev/null
+                    if [ "$rank" == "rank02" ]; then
+                        ask_self_assessment 0
+                        python3 "$base_dir/../../db.py" record "${shuffled[$i]}" 0 "$DURATION" \
+                            --code-file "$base_dir/../../rendu/${shuffled[$i]}/${shuffled[$i]}.c" \
+                            --trace-text "TIMEOUT: Infinite loop or process killed" \
+                            --independence-status "$SELF_INDEP" \
+                            --stuck-point "$SELF_STUCK" \
+                            --user-notes "$SELF_NOTES" >/dev/null 2>&1
+                    fi
+                else
+                    cat tester_output.log
+                    if grep -q -E "PASSED|SUCCESS" tester_output.log; then
+                        if [ "$rank" == "rank02" ]; then
+                            ask_self_assessment 1
+                            python3 "$base_dir/../../db.py" record "${shuffled[$i]}" 1 "$DURATION" \
+                                --code-file "$base_dir/../../rendu/${shuffled[$i]}/${shuffled[$i]}.c" \
+                                --independence-status "$SELF_INDEP" \
+                                --stuck-point "$SELF_STUCK" \
+                                --user-notes "$SELF_NOTES" >/dev/null 2>&1
+                        fi
+                    else
+                        if [ "$rank" == "rank02" ]; then
+                            ask_self_assessment 0
+                            python3 "$base_dir/../../db.py" record "${shuffled[$i]}" 0 "$DURATION" \
+                                --code-file "$base_dir/../../rendu/${shuffled[$i]}/${shuffled[$i]}.c" \
+                                --trace-file tester_output.log \
+                                --independence-status "$SELF_INDEP" \
+                                --stuck-point "$SELF_STUCK" \
+                                --user-notes "$SELF_NOTES" >/dev/null 2>&1
+                        fi
+                    fi
                 fi
 
                 echo "=============================================="

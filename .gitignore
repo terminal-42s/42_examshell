@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.log
+rendu/
+trace/
+.DS_Store
+*.db
+!*.sql
+.env
+.fuse_hidden*
